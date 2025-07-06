@@ -1,0 +1,25 @@
+{
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.fixAll.ts": "explicit"
+    },
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact"
+    ],
+    "eslint.workingDirectories": [
+      {
+        "directory": "../backend/",
+        "changeProcessCWD": true,
+        "mode": "auto",
+      },
+      {
+        "directory": "../frontend/",
+        "changeProcessCWD": true,
+        "mode": "auto",
+      }
+    ]
+  }

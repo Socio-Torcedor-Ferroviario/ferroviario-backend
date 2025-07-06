@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -12,19 +12,15 @@ export class Plans {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty()
   @Column()
   name: string;
 
-  @ApiProperty()
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @ApiProperty()
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
 
-  @ApiProperty()
   @Column({ default: 'MENSAL' })
   frequency: string;
 

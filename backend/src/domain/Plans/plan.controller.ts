@@ -1,44 +1,69 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { PlanService } from './plan.service';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
-import { Plans } from './plans.entity';
+import { ApiBody } from '@nestjs/swagger';
+import { ApiStandardResponse } from 'src/decorators/api-standard-response.decorator';
+import { CreatePlanDto, ResponsePlanDto } from './plan.schema';
 
 @Controller('plans')
 export class PlanController {
   constructor(private readonly planService: PlanService) {}
 
-  @ApiBody({ type: Plans })
+  @ApiBody({ type: CreatePlanDto })
   @Post()
-  @ApiResponse({
+  @ApiStandardResponse({
     status: 201,
     description: 'Plan Created Successfully',
-    type: Plans,
+    model: ResponsePlanDto,
   })
-  async create(@Body() plan: Partial<Plans>): Promise<Plans> {
-    return await this.planService.create(plan);
+  async create(@Body() plan: CreatePlanDto): Promise<ResponsePlanDto> {
+    const newPlan = await this.planService.create(plan);
+    return newPlan;
   }
 
-  @ApiResponse({
+  @ApiStandardResponse({
     status: 200,
-    description: 'List of Plans',
-    type: [Plans],
+    isArray: true,
+    description: 'Plans Retrieved Successfully',
+    model: ResponsePlanDto,
   })
   @Get()
-  async findAll(): Promise<Plans[]> {
+  async findAll(): Promise<ResponsePlanDto[]> {
     return await this.planService.findAll();
   }
 
-  @ApiResponse({
+  @ApiStandardResponse({
     status: 200,
-    description: 'Plan Details',
-    type: Plans,
+    description: 'Plan Retrieved Successfully',
+    model: ResponsePlanDto,
   })
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<Plans | null> {
+  async findOne(@Param('id') id: number): Promise<ResponsePlanDto> {
     return await this.planService.findOne(id);
   }
 
-  @ApiResponse({
+  @ApiStandardResponse({
+    status: 200,
+    description: 'Plan Updated Successfully',
+    model: ResponsePlanDto,
+  })
+  @Put(':id')
+  @ApiBody({ type: CreatePlanDto })
+  async updatePlan(
+    @Param('id') id: number,
+    @Body() plan: CreatePlanDto,
+  ): Promise<ResponsePlanDto | null> {
+    return await this.planService.update(id, plan);
+  }
+
+  @ApiStandardResponse({
     status: 200,
     description: 'Plan Removed Successfully',
   })

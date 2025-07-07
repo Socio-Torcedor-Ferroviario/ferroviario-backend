@@ -28,6 +28,7 @@ async function bootstrap() {
     .setDescription('API for managing Socio Torcedor plans and users')
     .setVersion('1.0')
     .addTag('SocioTorcedor')
+    .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, documentFactory, {

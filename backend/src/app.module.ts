@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import typeormConfigFactory from './infraestructure/typeOrmConfig';
 import { PlansModule } from './domain/Plans/plans.module';
+import { UserModule } from './domain/User/user.module';
+import { AuthModule } from './domain/Auth/auth.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { PlansModule } from './domain/Plans/plans.module';
       },
     }),
     PlansModule,
+    UserModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

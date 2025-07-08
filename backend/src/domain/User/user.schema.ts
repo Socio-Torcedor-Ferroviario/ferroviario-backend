@@ -1,8 +1,14 @@
-import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PickType,
+} from '@nestjs/swagger';
 import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   IsStrongPassword,
@@ -10,6 +16,8 @@ import {
 } from 'class-validator';
 import { Role } from './role.enum';
 import { Exclude, Expose } from 'class-transformer';
+import { IsCPF } from 'src/common/is-cpf.decorator';
+import { PageOptionsDto } from 'src/common/dto/page-option.dto';
 
 @Exclude()
 export class UserDto {
@@ -36,7 +44,7 @@ export class UserDto {
     example: '123.456.789-00',
     required: true,
   })
-  @IsString({ message: 'CPF must be a string.' })
+  @IsCPF({ message: 'CPF must be a valid Brazilian CPF.' })
   @IsNotEmpty({ message: 'CPF cannot be empty.' })
   cpf: string;
 
@@ -139,6 +147,8 @@ export class UserDto {
 
 export class CreateUserDto extends OmitType(UserDto, ['id'] as const) {}
 
+export class UpdateUserDto extends OmitType(CreateUserDto, ['cpf'] as const) {}
+
 export class ResponseUserDto extends OmitType(UserDto, ['password'] as const) {}
 
 export class LoginUserDto extends PickType(UserDto, ['email', 'password']) {}
@@ -149,4 +159,27 @@ export class UserTokenDto {
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
   })
   access_token: string;
+}
+
+export class UserFilterDto extends PageOptionsDto {
+  @ApiPropertyOptional({
+    description: 'Filter users by full name',
+  })
+  @IsString()
+  @IsOptional()
+  readonly search?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter users by CPF',
+  })
+  @IsOptional()
+  readonly cpf?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter users by role',
+    enum: Role,
+  })
+  @IsEnum(Role, { message: 'Role must be a valid enum value.' })
+  @IsOptional()
+  readonly role?: Role;
 }

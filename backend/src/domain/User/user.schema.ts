@@ -183,3 +183,10 @@ export class UserFilterDto extends PageOptionsDto {
   @IsOptional()
   readonly role?: Role;
 }
+
+export class UserSummaryDto extends PickType(UserDto, [
+  'id',
+  'fullName',
+  'email',
+  'role',
+]) {}

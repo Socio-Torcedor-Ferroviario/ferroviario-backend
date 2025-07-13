@@ -1,6 +1,6 @@
 // src/domain/Plans/dto/create-plan.dto.ts
 
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import {
   IsString,
@@ -83,3 +83,9 @@ export class ResponsePlanDto {
   })
   frequency: string;
 }
+
+export class PlanSummaryDto extends PickType(ResponsePlanDto, [
+  'id',
+  'name',
+  'price',
+] as const) {}

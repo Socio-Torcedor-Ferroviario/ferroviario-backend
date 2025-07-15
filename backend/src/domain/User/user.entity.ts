@@ -10,7 +10,8 @@ import {
 } from 'typeorm';
 import { Role } from './role.enum';
 import { Exclude } from 'class-transformer';
-import { Subscription } from '../Subscriptions/subscription.entity';
+import { PaymentMethod } from '../PaymentMethods/payment-methods.entity';
+import { Subscription } from '../Subscriptions/subscriptions.entity';
 
 @Entity('users')
 export class Users {
@@ -60,6 +61,9 @@ export class Users {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt: Date;
+
+  @OneToMany(() => PaymentMethod, (paymentMethod) => paymentMethod.user)
+  paymentMethod: PaymentMethod[];
 
   @OneToMany(() => Subscription, (subscription) => subscription.user)
   subscriptions: Subscription[];

@@ -2,6 +2,7 @@ import {
   ApiProperty,
   ApiPropertyOptional,
   OmitType,
+  PartialType,
   PickType,
 } from '@nestjs/swagger';
 import {
@@ -147,7 +148,9 @@ export class UserDto {
 
 export class CreateUserDto extends OmitType(UserDto, ['id'] as const) {}
 
-export class UpdateUserDto extends OmitType(CreateUserDto, ['cpf'] as const) {}
+export class DtoWithoutCPF extends OmitType(CreateUserDto, ['cpf'] as const) {}
+
+export class UpdateUserDto extends PartialType(DtoWithoutCPF) {}
 
 export class ResponseUserDto extends OmitType(UserDto, ['password'] as const) {}
 

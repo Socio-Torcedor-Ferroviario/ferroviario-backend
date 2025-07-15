@@ -5,6 +5,7 @@ import typeormConfigFactory from './infraestructure/typeOrmConfig';
 import { PlansModule } from './domain/Plans/plans.module';
 import { UserModule } from './domain/User/user.module';
 import { AuthModule } from './domain/Auth/auth.module';
+import { SubscriptionModule } from './domain/Subscriptions/subscription.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AuthModule } from './domain/Auth/auth.module';
     PlansModule,
     UserModule,
     AuthModule,
+    SubscriptionModule,
   ],
   controllers: [],
   providers: [],

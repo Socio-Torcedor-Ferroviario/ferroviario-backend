@@ -1,23 +1,13 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Put,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common';
 import { ApiStandardResponse } from 'src/decorators/api-standard-response.decorator';
 import { ResponseUserDto, UpdateUserDto, UserFilterDto } from './user.schema';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../Auth/guards/roles.guard';
-import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from './role.enum';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { AuthJwtDto } from '../Auth/auth.schema';
 import { PageDto } from 'src/common/dto/page.dto';
+import { ApiAuth } from 'src/decorators/api-auth.decorator';
 
 @ApiBearerAuth()
 @ApiTags('Users')
@@ -25,9 +15,8 @@ import { PageDto } from 'src/common/dto/page.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiAuth(Role.Socio)
   @Get('me')
-  @Roles(Role.Socio)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiStandardResponse({
     status: 200,
     description: 'User Retrieved Successfully',
@@ -37,9 +26,8 @@ export class UserController {
     return await this.userService.findById(parseInt(user.id));
   }
 
+  @ApiAuth(Role.Socio)
   @Put('me')
-  @Roles(Role.Socio)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiStandardResponse({
     status: 200,
     description: 'User Updated Successfully',
@@ -54,9 +42,8 @@ export class UserController {
     return updatedUser;
   }
 
+  @ApiAuth(Role.Admin)
   @Get()
-  @Roles(Role.Admin)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiStandardResponse({
     status: 200,
     isArray: true,
@@ -69,9 +56,8 @@ export class UserController {
     return await this.userService.findAllUsers(filterDto);
   }
 
+  @ApiAuth(Role.Admin)
   @Get(':id')
-  @Roles(Role.Admin)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiStandardResponse({
     status: 200,
     description: 'User Retrieved Successfully',

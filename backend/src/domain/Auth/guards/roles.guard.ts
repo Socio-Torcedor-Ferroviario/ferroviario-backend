@@ -37,6 +37,11 @@ export class RolesGuard implements CanActivate {
         'Access denied. You do not have permission to access this resource.',
       );
     }
+
+    if (user.role === Role.Admin) {
+      return true;
+    }
+
     const hasPermission = requiredRoles.some((role) => user.role === role);
 
     if (!hasPermission) {

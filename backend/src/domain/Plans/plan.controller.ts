@@ -8,15 +8,16 @@ import {
   Put,
 } from '@nestjs/common';
 import { PlanService } from './plan.service';
-import { ApiBody } from '@nestjs/swagger';
 import { ApiStandardResponse } from 'src/decorators/api-standard-response.decorator';
 import { CreatePlanDto, ResponsePlanDto } from './plan.schema';
+import { Role } from '../User/role.enum';
+import { ApiAuth } from 'src/decorators/api-auth.decorator';
 
 @Controller('plans')
 export class PlanController {
   constructor(private readonly planService: PlanService) {}
 
-  @ApiBody({ type: CreatePlanDto })
+  @ApiAuth(Role.Admin)
   @Post()
   @ApiStandardResponse({
     status: 201,
@@ -49,13 +50,13 @@ export class PlanController {
     return await this.planService.findOne(id);
   }
 
+  @ApiAuth(Role.Admin)
   @ApiStandardResponse({
     status: 200,
     description: 'Plan Updated Successfully',
     model: ResponsePlanDto,
   })
   @Put(':id')
-  @ApiBody({ type: CreatePlanDto })
   async updatePlan(
     @Param('id') id: number,
     @Body() plan: CreatePlanDto,
@@ -63,6 +64,7 @@ export class PlanController {
     return await this.planService.update(id, plan);
   }
 
+  @ApiAuth(Role.Admin)
   @ApiStandardResponse({
     status: 200,
     description: 'Plan Removed Successfully',

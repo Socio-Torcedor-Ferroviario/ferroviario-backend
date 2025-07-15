@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './user.entity';
-import { Brackets, Repository } from 'typeorm';
+import { Brackets, EntityManager, Repository } from 'typeorm';
 import {
   UserDto,
   ResponseUserDto,
@@ -12,6 +12,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { PageDto } from 'src/common/dto/page.dto';
 import { PageMetaDto } from 'src/common/dto/page-meta.dto';
+import { Role } from './role.enum';
 
 @Injectable()
 export class UserService {
@@ -104,13 +105,25 @@ export class UserService {
     });
   }
 
-  async updateUser(id: number, user: UpdateUserDto): Promise<ResponseUserDto> {
-    const oldUser = await this.userRepository.findOne({ where: { id } });
-    if (!oldUser) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+  async updateUser(
+    id: number,
+    userData: UpdateUserDto,
+    manager: EntityManager = this.userRepository.manager,
+  ): Promise<ResponseUserDto> {
+    const userToUpdate = await this.userRepository.findOne({ where: { id } });
+
+    if (!userToUpdate) {
+      throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
     }
-    const updatedUser = this.userRepository.merge(oldUser, user);
-    const savedUser = await this.userRepository.save(updatedUser);
+
+    if (userData.role && userToUpdate.role !== Role.Public) {
+      delete userData.role;
+    }
+
+    const updatedUser = this.userRepository.merge(userToUpdate, userData);
+
+    const savedUser = await manager.save(updatedUser);
+
     return plainToInstance(ResponseUserDto, savedUser, {
       excludeExtraneousValues: true,
     });

@@ -1,4 +1,4 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { SubscriptionStatus } from './subscription.entity';
 import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
 import { IsDate, IsEnum, IsNotEmpty } from 'class-validator';
@@ -97,6 +97,7 @@ export class ResponseSubscriptionDto extends OmitType(SubscriptionDto, [
     description: 'The user associated with the subscription',
     type: () => UserSummaryDto,
   })
+  @Type(() => UserSummaryDto)
   user: UserSummaryDto;
 
   @Expose()
@@ -104,6 +105,7 @@ export class ResponseSubscriptionDto extends OmitType(SubscriptionDto, [
     description: 'The plan associated with the subscription',
     type: () => PlanSummaryDto,
   })
+  @Type(() => PlanSummaryDto)
   plan: PlanSummaryDto;
 }
 

@@ -3,11 +3,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Subscription } from '../Subscriptions/subscription.entity';
+import { Content } from '../Content/content.entity';
 
 @Entity('plans')
 export class Plans {
@@ -37,4 +39,7 @@ export class Plans {
 
   @OneToMany(() => Subscription, (subscription) => subscription.plan)
   subscriptions: Subscription[];
+
+  @ManyToMany(() => Content, (content) => content.plans)
+  contents: Content[];
 }

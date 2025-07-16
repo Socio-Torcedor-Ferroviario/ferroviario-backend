@@ -6,6 +6,8 @@ import { PlansModule } from './domain/Plans/plans.module';
 import { UserModule } from './domain/User/user.module';
 import { AuthModule } from './domain/Auth/auth.module';
 import { SubscriptionModule } from './domain/Subscriptions/subscription.module';
+import { PartnerModule } from './domain/Partners/partner.module';
+import { ContentModule } from './domain/Content/content.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { SubscriptionModule } from './domain/Subscriptions/subscription.module';
     UserModule,
     AuthModule,
     SubscriptionModule,
+    PartnerModule,
+    ContentModule,
   ],
   controllers: [],
   providers: [],

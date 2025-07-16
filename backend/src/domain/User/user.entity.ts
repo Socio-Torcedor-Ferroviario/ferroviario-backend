@@ -11,6 +11,7 @@ import {
 import { Role } from './role.enum';
 import { Exclude } from 'class-transformer';
 import { Subscription } from '../Subscriptions/subscription.entity';
+import { Content } from '../Content/content.entity';
 
 @Entity('users')
 export class Users {
@@ -63,4 +64,7 @@ export class Users {
 
   @OneToMany(() => Subscription, (subscription) => subscription.user)
   subscriptions: Subscription[];
+
+  @OneToMany(() => Content, (content) => content.author)
+  contents: Content[];
 }

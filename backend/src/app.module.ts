@@ -6,6 +6,8 @@ import { PlansModule } from './domain/Plans/plans.module';
 import { UserModule } from './domain/User/user.module';
 import { AuthModule } from './domain/Auth/auth.module';
 import { SubscriptionModule } from './domain/Subscriptions/subscription.module';
+import { PaymentsModule } from './domain/Payments/payments.module';
+import { PaymentMethodsModule } from './domain/PaymentMethods/payment-methods.module';
 import { PartnerModule } from './domain/Partners/partner.module';
 import { ContentModule } from './domain/Content/content.module';
 
@@ -31,6 +33,8 @@ import { ContentModule } from './domain/Content/content.module';
     PlansModule,
     UserModule,
     AuthModule,
+    PaymentsModule,
+    PaymentMethodsModule,
     SubscriptionModule,
     PartnerModule,
     ContentModule,

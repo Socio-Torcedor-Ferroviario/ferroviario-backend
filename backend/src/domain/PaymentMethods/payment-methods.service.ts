@@ -28,8 +28,14 @@ export class PaymentMethodsService {
 
   async createPaymentMethod(
     createPaymentMethodDto: CreatePaymentMethodDto,
-    user: Users,
+    userId: number,
   ): Promise<PaymentMethod> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found.`);
+    }
+
     const newPaymentMethod = this.paymentMethodRepository.create({
       ...createPaymentMethodDto,
       userId: user.id,

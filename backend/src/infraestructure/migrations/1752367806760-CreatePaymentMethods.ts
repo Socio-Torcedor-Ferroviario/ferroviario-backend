@@ -1,4 +1,9 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class CreatePaymentMethods1752367806760 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -60,7 +65,7 @@ export class CreatePaymentMethods1752367806760 implements MigrationInterface {
       true,
     );
 
-    /*await queryRunner.createForeignKey(
+    await queryRunner.createForeignKey(
       'payment_methods',
       new TableForeignKey({
         columnNames: ['user_id'],
@@ -68,7 +73,7 @@ export class CreatePaymentMethods1752367806760 implements MigrationInterface {
         referencedTableName: 'users',
         onDelete: 'CASCADE',
       }),
-    );*/
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

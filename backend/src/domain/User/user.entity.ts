@@ -11,7 +11,7 @@ import {
 import { Role } from './role.enum';
 import { Exclude } from 'class-transformer';
 import { PaymentMethod } from '../PaymentMethods/payment-methods.entity';
-import { Subscription } from '../Subscriptions/subscriptions.entity';
+import { Subscription } from '../Subscriptions/subscription.entity';
 
 @Entity('users')
 export class Users {

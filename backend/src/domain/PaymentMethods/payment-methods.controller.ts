@@ -45,7 +45,7 @@ export class PaymentMethodsController {
   ) {
     return this.paymentMethodsService.createPaymentMethod(
       createPaymentMethodDto,
-      user.id,
+      parseInt(user.id),
     );
   }
 

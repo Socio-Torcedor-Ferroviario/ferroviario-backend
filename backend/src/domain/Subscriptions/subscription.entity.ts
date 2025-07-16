@@ -6,9 +6,11 @@ import {
   ManyToOne,
   JoinColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { Users } from '../User/user.entity';
 import { Plans } from '../Plans/plans.entity';
+import { Payment } from '../Payments/payments.entity';
 
 export enum SubscriptionStatus {
   ACTIVE = 'ACTIVE',
@@ -62,4 +64,7 @@ export class Subscription {
   })
   @JoinColumn({ name: 'plan_id' })
   plan: Plans;
+
+  @OneToMany(() => Payment, (payment) => payment.subscription)
+  payments: Payment[];
 }

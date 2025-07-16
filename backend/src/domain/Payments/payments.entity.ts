@@ -6,7 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Subscription } from '../Subscriptions/subscriptions.entity';
+import { Subscription } from '../Subscriptions/subscription.entity';
 
 @Entity('payments')
 export class Payment {

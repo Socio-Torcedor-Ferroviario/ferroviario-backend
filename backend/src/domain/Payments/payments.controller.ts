@@ -16,20 +16,19 @@ import { AuthJwtDto } from '../Auth/auth.schema';
 import { PaymentHistoryDto } from './payments.schema';
 import { Role } from 'src/domain/User/role.enum';
 
-@ApiBearerAuth() // Adiciona o cabeçalho de autenticação Bearer no Swagger
-@ApiTags('Payments History') // Tag para organizar no Swagger
-@Controller('payments/me') // O endpoint base para o histórico de pagamentos é '/payments/me'
-@UseGuards(AuthGuard('jwt'), RolesGuard) // Aplica guards a todas as rotas do controller
-@Roles(Role.Socio) // Define que todas as rotas neste controller requerem o papel de 'Socio'
+@ApiBearerAuth()
+@ApiTags('PaymentsHistory')
+@Controller('payments/me')
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles(Role.Socio)
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  @Get('history') // O endpoint completo será '/payments/me/history'
+  @Get('history')
   @HttpCode(HttpStatus.OK)
   async getPaymentHistory(
     @GetUser() user: AuthJwtDto,
   ): Promise<PaymentHistoryDto[]> {
-    // user.id vem como string do JWT, converta para number
     return this.paymentsService.getPaymentHistoryForUser(parseInt(user.id));
   }
 }

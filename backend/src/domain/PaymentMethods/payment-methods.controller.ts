@@ -24,7 +24,7 @@ import { AuthJwtDto } from 'src/domain/Auth/auth.schema';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiBearerAuth()
-@ApiTags('Payment Methods')
+@ApiTags('PaymentMethods')
 @Controller('payments/me/methods')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Roles(Role.Socio)

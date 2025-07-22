@@ -1,10 +1,14 @@
-// src/domain/Payments/payments.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Payment } from './payments.entity';
 import { Users } from '../User/user.entity';
-import { PaymentHistoryDto } from './payments.schema';
+import {
+  CreatePaymentDto,
+  PaymentsHistoryDto,
+  ResponsePaymentDto,
+} from './payments.schema';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class PaymentsService {
@@ -15,7 +19,40 @@ export class PaymentsService {
     private usersRepository: Repository<Users>,
   ) {}
 
-  async getPaymentHistoryForUser(userId: number): Promise<PaymentHistoryDto[]> {
+  private async processGatewayPayment(token?: string): Promise<boolean> {
+    if (!token) return false;
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    return true;
+  }
+
+  async createPayment(
+    paymentData: CreatePaymentDto,
+    manager: EntityManager,
+  ): Promise<ResponsePaymentDto> {
+    const isPaymentSuccessful = await this.processGatewayPayment(
+      paymentData.paymentGatewayId,
+    );
+
+    if (!isPaymentSuccessful) {
+      throw new Error('Falha no processamento do pagamento.');
+    }
+    const newPayment = manager.create(Payment, {
+      ...paymentData,
+      paymentDate: new Date(),
+      status: 'PAID',
+    });
+
+    const payment = await manager.save(newPayment);
+
+    return plainToInstance(ResponsePaymentDto, payment, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async getPaymentHistoryForUser(
+    userId: number,
+  ): Promise<PaymentsHistoryDto[]> {
     const userWithSubscriptions = await this.usersRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.subscriptions', 'subscription')
@@ -35,12 +72,10 @@ export class PaymentsService {
       }
     });
 
-    return payments.map((payment) => ({
-      id: payment.id,
-      amount: payment.amount,
-      paymentDate: payment.paymentDate,
-      status: payment.status,
-      paymentMethodDescription: payment.paymentMethodDescription,
-    }));
+    return payments.map((payment) =>
+      plainToInstance(PaymentsHistoryDto, payment, {
+        excludeExtraneousValues: true,
+      }),
+    );
   }
 }

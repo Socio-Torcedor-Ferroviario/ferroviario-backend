@@ -65,6 +65,6 @@ export class Subscription {
   @JoinColumn({ name: 'plan_id' })
   plan: Plans;
 
-  @OneToMany(() => Payment, (payment) => payment.subscription)
+  @OneToMany(() => Payment, (payment) => payment.payableId, { cascade: false })
   payments: Payment[];
 }

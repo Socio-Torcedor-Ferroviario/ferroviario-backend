@@ -13,8 +13,8 @@ import { RolesGuard } from '../Auth/guards/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { AuthJwtDto } from '../Auth/auth.schema';
-import { PaymentHistoryDto } from './payments.schema';
 import { Role } from 'src/domain/User/role.enum';
+import { PaymentsHistoryDto } from './payments.schema';
 
 @ApiBearerAuth()
 @ApiTags('PaymentsHistory')
@@ -28,7 +28,7 @@ export class PaymentsController {
   @HttpCode(HttpStatus.OK)
   async getPaymentHistory(
     @GetUser() user: AuthJwtDto,
-  ): Promise<PaymentHistoryDto[]> {
+  ): Promise<PaymentsHistoryDto[]> {
     return this.paymentsService.getPaymentHistoryForUser(parseInt(user.id));
   }
 }

@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Subscription } from '../Subscriptions/subscription.entity';
 import { Content } from '../Content/content.entity';
+import { PlanBenefit } from './plan-benefits.entity';
 
 @Entity('plans')
 export class Plans {
@@ -39,6 +40,9 @@ export class Plans {
 
   @OneToMany(() => Subscription, (subscription) => subscription.plan)
   subscriptions: Subscription[];
+
+  @OneToMany(() => PlanBenefit, (planBenefit) => planBenefit.plan)
+  planBenefits: PlanBenefit[];
 
   @ManyToMany(() => Content, (content) => content.plans)
   contents: Content[];

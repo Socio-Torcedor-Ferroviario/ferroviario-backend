@@ -1,5 +1,3 @@
-// src/domain/User/user.entity.ts
-
 import {
   Column,
   CreateDateColumn,
@@ -13,6 +11,8 @@ import { Exclude } from 'class-transformer';
 import { PaymentMethod } from '../PaymentMethods/payment-methods.entity';
 import { Subscription } from '../Subscriptions/subscription.entity';
 import { Content } from '../Content/content.entity';
+import { Ticket } from '../Tickets/ticket.entity';
+import { Payment } from '../Payments/payments.entity';
 
 @Entity('users')
 export class Users {
@@ -71,4 +71,10 @@ export class Users {
 
   @OneToMany(() => Content, (content) => content.author)
   contents: Content[];
+
+  @OneToMany(() => Ticket, (ticket) => ticket.user)
+  tickets: Ticket[];
+
+  @OneToMany(() => Payment, (payment) => payment.user)
+  payments: Payment[];
 }

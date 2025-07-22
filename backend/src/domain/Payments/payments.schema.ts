@@ -1,65 +1,104 @@
-// src/domain/PaymentMethods/dto/create-payment-method.dto.ts
+import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
 import {
-  IsString,
+  IsDate,
+  IsDecimal,
+  IsEnum,
   IsNotEmpty,
-  IsBoolean,
-  IsOptional,
-  Length,
   IsNumber,
-  IsDateString,
-  IsIn,
+  IsOptional,
+  IsString,
 } from 'class-validator';
-import { PartialType } from '@nestjs/mapped-types';
+import { Exclude, Expose } from 'class-transformer';
+import { PayableType } from './payments.entity';
 
-export class CreatePaymentMethodDto {
-  @IsString()
-  @IsNotEmpty()
-  gatewayToken: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @IsIn(['CREDIT_CARD', 'PIX', 'BANK_TRANSFER'])
-  type: string;
-
-  @IsOptional()
-  @IsString()
-  @Length(4, 4)
-  lastFourDigits?: string;
-
-  @IsOptional()
-  @IsString()
-  cardBrand?: string;
-
-  @IsOptional()
-  @IsString()
-  expiryDate?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  isDefault?: boolean;
-}
-
-export class UpdatePaymentMethodDto extends PartialType(
-  CreatePaymentMethodDto,
-) {
-  @IsOptional()
-  @IsBoolean()
-  isDefault?: boolean;
-}
-
-export class PaymentHistoryDto {
-  @IsNumber()
+@Exclude()
+export class PaymentDto {
+  @Expose()
+  @ApiProperty()
   id: number;
 
+  @Expose()
+  @ApiProperty({
+    description: 'Payable ID',
+    example: '123',
+  })
   @IsNumber()
+  @IsNotEmpty()
+  payableId: number;
+
+  @Expose()
+  @ApiProperty({
+    description: 'Payable Type',
+    example: 'SUBSCRIPTION',
+  })
+  @IsEnum(PayableType)
+  @IsNotEmpty()
+  payableType: PayableType;
+
+  @Expose()
+  @ApiProperty({
+    description: 'Payment Amount',
+    example: '100.00',
+  })
+  @IsDecimal()
+  @IsNotEmpty()
   amount: number;
 
-  @IsDateString()
+  @Expose()
+  @ApiProperty({
+    description: 'Payment Date',
+    example: '',
+  })
+  @IsDate()
+  @IsNotEmpty()
   paymentDate: Date;
 
+  @Expose()
+  @ApiProperty({
+    description: 'Payment Status',
+    example: 'PAID',
+  })
+  @IsNotEmpty()
   @IsString()
   status: string;
 
+  @Expose()
+  @ApiProperty({
+    description: 'Payment Method Description',
+    example: 'Credit Card',
+  })
+  @IsNotEmpty()
   @IsString()
   paymentMethodDescription: string;
+
+  @Expose()
+  @ApiProperty({
+    description: 'Paymnet Gateway Id',
+    example: '123456789',
+  })
+  @IsOptional()
+  @IsString()
+  paymentGatewayId?: string;
+
+  @Expose()
+  @ApiProperty({
+    description: 'User ID',
+    example: '1',
+  })
+  @IsNotEmpty()
+  @IsNumber()
+  userId: number;
 }
+
+export class CreatePaymentDto extends OmitType(PaymentDto, ['id']) {}
+export class ResponsePaymentDto extends OmitType(PaymentDto, [
+  'paymentGatewayId',
+]) {}
+
+export class PaymentsHistoryDto extends PickType(PaymentDto, [
+  'id',
+  'amount',
+  'paymentDate',
+  'status',
+  'paymentMethodDescription',
+]) {}

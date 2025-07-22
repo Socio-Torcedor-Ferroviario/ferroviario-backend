@@ -3,7 +3,11 @@ import { ApiTags } from '@nestjs/swagger';
 import { SubscriptionService } from './subscription.service';
 import { Role } from '../User/role.enum';
 import { ApiStandardResponse } from 'src/decorators/api-standard-response.decorator';
-import { ChangePlanDto, ResponseSubscriptionDto } from './subscription.schema';
+import {
+  ChangePlanDto,
+  CreateSubscriptionDto,
+  ResponseSubscriptionDto,
+} from './subscription.schema';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { AuthJwtDto } from '../Auth/auth.schema';
 import { ApiAuth } from 'src/decorators/api-auth.decorator';
@@ -50,12 +54,12 @@ export class SubscriptionController {
   })
   async createSubscription(
     @GetUser() user: AuthJwtDto,
-    @Body() changePlanDto: ChangePlanDto,
+    @Body() createSubscriptionDto: CreateSubscriptionDto,
   ): Promise<ResponseSubscriptionDto> {
     const userId = parseInt(user.id);
     return await this.subscriptionService.createSubscription(
       userId,
-      changePlanDto,
+      createSubscriptionDto,
     );
   }
 

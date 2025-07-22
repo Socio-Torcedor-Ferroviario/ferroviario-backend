@@ -1,9 +1,16 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import { SubscriptionStatus } from './subscription.entity';
 import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsNotEmpty } from 'class-validator';
+import {
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+} from 'class-validator';
 import { UserSummaryDto } from '../User/user.schema';
 import { PlanSummaryDto } from '../Plans/plan.schema';
+import { BenefitsSummaryDto } from '../Benefits/benefits.schema';
 
 @Exclude()
 export class SubscriptionDto {
@@ -107,9 +114,41 @@ export class ResponseSubscriptionDto extends OmitType(SubscriptionDto, [
   })
   @Type(() => PlanSummaryDto)
   plan: PlanSummaryDto;
+
+  @Expose()
+  @ApiProperty({
+    description: 'The benefits associated with the subscription',
+    type: () => [BenefitsSummaryDto],
+  })
+  benefits: BenefitsSummaryDto[];
 }
 
 export class ChangePlanDto extends PickType(SubscriptionDto, [
   'plan_id',
   'automatic_renewal',
 ] as const) {}
+
+export class CreateSubscriptionDto {
+  @ApiProperty({
+    description: 'ID of the plan to subscribe to',
+    example: 1,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  plan_id: number;
+
+  @ApiProperty({
+    description: 'Indicates if the subscription should renew automatically',
+    example: true,
+  })
+  @IsBoolean()
+  automatic_renewal: boolean;
+
+  @ApiProperty({
+    description: 'ID of the payment method to be used for the subscription',
+    example: 42,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  paymentMethodId: number;
+}

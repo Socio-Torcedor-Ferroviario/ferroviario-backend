@@ -10,6 +10,8 @@ import { PaymentsModule } from './domain/Payments/payments.module';
 import { PaymentMethodsModule } from './domain/PaymentMethods/payment-methods.module';
 import { PartnerModule } from './domain/Partners/partner.module';
 import { ContentModule } from './domain/Content/content.module';
+import { GamesModule } from './domain/Games/game.module';
+import { TicketModule } from './domain/Tickets/ticket.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { ContentModule } from './domain/Content/content.module';
     SubscriptionModule,
     PartnerModule,
     ContentModule,
+    GamesModule,
+    TicketModule,
   ],
   controllers: [],
   providers: [],

@@ -1,12 +1,19 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Subscription, SubscriptionStatus } from './subscription.entity';
 import { DataSource, Repository } from 'typeorm';
-import { ChangePlanDto, ResponseSubscriptionDto } from './subscription.schema';
+import {
+  ChangePlanDto,
+  CreateSubscriptionDto,
+  ResponseSubscriptionDto,
+} from './subscription.schema';
 import { plainToInstance } from 'class-transformer';
 import { addMonths } from 'date-fns';
 import { UserService } from '../User/user.service';
 import { Role } from '../User/role.enum';
+import { PaymentsService } from '../Payments/payments.service';
+import { Plans } from '../Plans/plans.entity';
+import { PayableType } from '../Payments/payments.entity';
 
 @Injectable()
 export class SubscriptionService {
@@ -14,25 +21,76 @@ export class SubscriptionService {
     @InjectRepository(Subscription)
     private readonly subscriptionRepository: Repository<Subscription>,
     private readonly userService: UserService,
+    @InjectRepository(Plans)
+    private readonly planRepository: Repository<Plans>,
+    private readonly paymentService: PaymentsService,
     private readonly dataSource: DataSource,
   ) {}
+
+  private async findAndFormatSubscription(
+    id: number,
+  ): Promise<ResponseSubscriptionDto> {
+    const subscription = await this.subscriptionRepository.findOne({
+      where: { id },
+      relations: [
+        'user',
+        'plan',
+        'plan.planBenefits',
+        'plan.planBenefits.benefit', // Carrega a relação aninhada
+      ],
+    });
+
+    if (!subscription) {
+      throw new HttpException('Subscription not found after operation', 404);
+    }
+
+    const benefits = subscription.plan.planBenefits.map((pb) => pb.benefit);
+
+    const formattedSubscription = {
+      ...subscription,
+      plan: {
+        ...subscription.plan,
+        benefits: benefits,
+      },
+    };
+
+    return plainToInstance(ResponseSubscriptionDto, formattedSubscription, {
+      excludeExtraneousValues: true,
+    });
+  }
 
   async findMySubscription(id: number): Promise<ResponseSubscriptionDto[]> {
     const subscriptions = await this.subscriptionRepository.find({
       where: { user_id: id },
-      relations: ['user', 'plan'],
+      relations: [
+        'user',
+        'plan',
+        'plan.planBenefits',
+        'plan.planBenefits.benefit',
+      ],
     });
     if (!subscriptions || subscriptions.length === 0) {
       throw new HttpException('No entries found for this user', 404);
     }
-    return plainToInstance(ResponseSubscriptionDto, subscriptions, {
+    const subscriptionsWithBenefits = subscriptions.map((sub) => {
+      const benefits = sub.plan.planBenefits.map((pb) => pb.benefit);
+      return {
+        ...sub,
+        plan: {
+          ...sub.plan,
+          benefits: benefits,
+        },
+      };
+    });
+
+    return plainToInstance(ResponseSubscriptionDto, subscriptionsWithBenefits, {
       excludeExtraneousValues: true,
     });
   }
 
   async createSubscription(
     userId: number,
-    changePlanDto: ChangePlanDto,
+    subscriptionDto: CreateSubscriptionDto,
   ): Promise<ResponseSubscriptionDto> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -50,15 +108,40 @@ export class SubscriptionService {
         throw new HttpException('User already has an active subscription', 400);
       }
 
+      const plan = await this.planRepository.findOneBy({
+        id: subscriptionDto.plan_id,
+      });
+      if (!plan) {
+        throw new NotFoundException(
+          `Plan with ID ${subscriptionDto.plan_id} not found`,
+        );
+      }
+
       const subscription = this.subscriptionRepository.create({
         user_id: userId,
-        plan_id: changePlanDto.plan_id,
-        automatic_renewal: changePlanDto.automatic_renewal,
+        plan_id: subscriptionDto.plan_id,
+        automatic_renewal: subscriptionDto.automatic_renewal,
         next_payment_date: addMonths(new Date(), 1),
         start_date: new Date(),
-        status: SubscriptionStatus.ACTIVE,
+        status: SubscriptionStatus.PENDING_PAYMENT,
       });
       const newSubscription = await queryRunner.manager.save(subscription);
+
+      await this.paymentService.createPayment(
+        {
+          userId,
+          amount: plan.price,
+          payableId: newSubscription.id,
+          payableType: PayableType.SUBSCRIPTION,
+          paymentMethodDescription: `Payment Method ID: ${subscriptionDto.paymentMethodId}`,
+          status: 'PAID',
+          paymentDate: new Date(),
+        },
+        queryRunner.manager,
+      );
+
+      newSubscription.status = SubscriptionStatus.ACTIVE;
+      await queryRunner.manager.save(newSubscription);
 
       await this.userService.updateUser(
         userId,
@@ -68,17 +151,7 @@ export class SubscriptionService {
 
       await queryRunner.commitTransaction();
 
-      const subscriptionCreated = await this.subscriptionRepository.findOne({
-        where: { id: newSubscription.id },
-        relations: ['user', 'plan'],
-      });
-
-      if (!subscriptionCreated) {
-        throw new HttpException('Subscription not found after creation', 404);
-      }
-      return plainToInstance(ResponseSubscriptionDto, subscriptionCreated, {
-        excludeExtraneousValues: true,
-      });
+      return this.findAndFormatSubscription(newSubscription.id);
     } catch (err) {
       await queryRunner.rollbackTransaction();
       throw err;
@@ -124,17 +197,7 @@ export class SubscriptionService {
 
       await queryRunner.commitTransaction();
 
-      const fullSubscription = await this.subscriptionRepository.findOne({
-        where: { id: updatedSubscription.id },
-        relations: ['user', 'plan'],
-      });
-      if (!fullSubscription) {
-        throw new HttpException('Subscription not found after update', 404);
-      }
-
-      return plainToInstance(ResponseSubscriptionDto, fullSubscription, {
-        excludeExtraneousValues: true,
-      });
+      return this.findAndFormatSubscription(updatedSubscription.id);
     } catch (err) {
       await queryRunner.rollbackTransaction();
       throw err;
@@ -164,15 +227,6 @@ export class SubscriptionService {
     if (!updatedSubscription) {
       throw new HttpException('Subscription cancellation failed', 500);
     }
-    const fullSubscription = await this.subscriptionRepository.findOne({
-      where: { id: updatedSubscription.id },
-      relations: ['user', 'plan'],
-    });
-    if (!fullSubscription) {
-      throw new HttpException('Subscription not found after cancellation', 404);
-    }
-    return plainToInstance(ResponseSubscriptionDto, fullSubscription, {
-      excludeExtraneousValues: true,
-    });
+    return this.findAndFormatSubscription(updatedSubscription.id);
   }
 }

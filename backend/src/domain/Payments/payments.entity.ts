@@ -6,15 +6,23 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Subscription } from '../Subscriptions/subscription.entity';
+import { Users } from '../User/user.entity';
+
+export enum PayableType {
+  SUBSCRIPTION = 'SUBSCRIPTION',
+  TICKET_ORDER = 'TICKET_ORDER',
+}
 
 @Entity('payments')
 export class Payment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'subscription_id', nullable: false })
-  subscriptionId: number;
+  @Column({ name: 'payable_id', nullable: false })
+  payableId: number;
+
+  @Column({ type: 'enum', enum: PayableType, nullable: false })
+  payableType: PayableType;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   amount: number;
@@ -31,9 +39,10 @@ export class Payment {
   @Column({ name: 'payment_gateway_id', nullable: true })
   paymentGatewayId?: string;
 
-  @ManyToOne(() => Subscription, (subscription) => subscription.payments, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'subscription_id' })
-  subscription: Subscription;
+  @Column({ name: 'user_id', nullable: false })
+  userId: number;
+
+  @ManyToOne(() => Users)
+  @JoinColumn({ name: 'user_id' })
+  user: Users;
 }

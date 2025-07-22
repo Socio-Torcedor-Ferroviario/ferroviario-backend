@@ -1,4 +1,3 @@
-// src/domain/PaymentMethods/payment-methods.service.ts
 import {
   Injectable,
   NotFoundException,

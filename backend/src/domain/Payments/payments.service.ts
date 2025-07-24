@@ -9,6 +9,7 @@ import {
   ResponsePaymentDto,
 } from './payments.schema';
 import { plainToInstance } from 'class-transformer';
+import { PaymentMethod } from '../PaymentMethods/payment-methods.entity';
 
 @Injectable()
 export class PaymentsService {
@@ -17,6 +18,8 @@ export class PaymentsService {
     private paymentRepository: Repository<Payment>,
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
+    @InjectRepository(PaymentMethod)
+    private paymentMethodRepository: Repository<PaymentMethod>,
   ) {}
 
   private async processGatewayPayment(token?: string): Promise<boolean> {
@@ -37,6 +40,15 @@ export class PaymentsService {
     if (!isPaymentSuccessful) {
       throw new Error('Falha no processamento do pagamento.');
     }
+
+    const paymentMethod = await this.paymentMethodRepository.findOne({
+      where: { id: paymentData.paymentMethodId },
+    });
+
+    if (!paymentMethod) {
+      throw new Error('Método de pagamento não encontrado.');
+    }
+
     const newPayment = manager.create(Payment, {
       ...paymentData,
       paymentDate: new Date(),

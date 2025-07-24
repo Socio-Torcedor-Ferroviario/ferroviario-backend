@@ -1,9 +1,8 @@
 import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDate,
-  IsDecimal,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -43,6 +42,7 @@ export class GameDto {
     example: '2023-10-26T10:00:00.000Z',
   })
   @IsNotEmpty()
+  @Type(() => Date)
   @IsDate()
   match_date: Date;
 
@@ -97,7 +97,12 @@ export class GameDto {
     example: 50.0,
   })
   @IsOptional()
-  @IsDecimal()
+  @IsNumber(
+    { maxDecimalPlaces: 2 },
+    {
+      message: 'base_ticket_price must be a number with up to 2 decimal places',
+    },
+  )
   base_ticket_price: number;
 }
 

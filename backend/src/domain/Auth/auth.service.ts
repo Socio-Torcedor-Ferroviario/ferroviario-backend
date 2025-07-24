@@ -1,12 +1,16 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { UserService } from '../User/user.service';
 import {
+  ChangeUserPasswordDto,
   CreateUserDto,
   ResponseUserDto,
+  UpdateUserDto,
   UserTokenDto,
 } from '../User/user.schema';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { plainToInstance } from 'class-transformer';
+import { Users } from '../User/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -51,5 +55,28 @@ export class AuthService {
     });
 
     return newUser;
+  }
+  async changePassword(id: number, updatePassword: ChangeUserPasswordDto) {
+    const userToUpdate = await this.userService.findById(id);
+    const user = plainToInstance(Users, userToUpdate, {
+      excludeExtraneousValues: true,
+    });
+    if (!userToUpdate) {
+      throw new ConflictException(`Usuário com ID ${id} não encontrado`);
+    }
+    if (updatePassword.cpf !== userToUpdate.cpf) {
+      throw new Error('CPF não corresponde ao usuário');
+    }
+
+    const hashedPassword = await bcrypt.hash(updatePassword.password, 10);
+    user.password = hashedPassword;
+    await this.userService.updateUser(
+      user.id,
+      plainToInstance(UpdateUserDto, user, {
+        excludeExtraneousValues: true,
+      }),
+    );
+
+    return { message: 'Senha alterada com sucesso' };
   }
 }

@@ -7,7 +7,7 @@ import { GameController } from './game.controller';
 @Module({
   imports: [TypeOrmModule.forFeature([Game])],
   providers: [GameService],
-  exports: [GameService],
+  exports: [GameService, TypeOrmModule],
   controllers: [GameController],
 })
 export class GamesModule {}

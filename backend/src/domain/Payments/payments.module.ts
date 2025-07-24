@@ -6,9 +6,12 @@ import { PaymentsService } from './payments.service';
 import { PaymentsController } from './payments.controller';
 import { Users } from '../User/user.entity';
 import { Subscription } from '../Subscriptions/subscription.entity';
+import { PaymentMethod } from '../PaymentMethods/payment-methods.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Payment, Users, Subscription])],
+  imports: [
+    TypeOrmModule.forFeature([Payment, Users, Subscription, PaymentMethod]),
+  ],
   providers: [PaymentsService],
   controllers: [PaymentsController],
   exports: [PaymentsService],

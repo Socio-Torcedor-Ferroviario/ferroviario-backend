@@ -27,7 +27,6 @@ export class TicketsService {
         qrCode: uuidv4(),
         originalPrice: game.base_ticket_price,
         pricePaid: pricePaidPerTicket,
-        status: 'VALIDO',
       });
     }
 

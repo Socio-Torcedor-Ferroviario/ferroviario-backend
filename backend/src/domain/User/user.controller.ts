@@ -1,11 +1,6 @@
 import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common';
 import { ApiStandardResponse } from 'src/decorators/api-standard-response.decorator';
-import {
-  ChangeUserPasswordDto,
-  ResponseUserDto,
-  UpdateUserDto,
-  UserFilterDto,
-} from './user.schema';
+import { ResponseUserDto, UpdateUserDto, UserFilterDto } from './user.schema';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Role } from './role.enum';
@@ -45,21 +40,6 @@ export class UserController {
     const userId = parseInt(user.id);
     const updatedUser = await this.userService.updateUser(userId, userData);
     return updatedUser;
-  }
-
-  @ApiAuth(Role.Socio)
-  @Put('me/change-password')
-  @ApiStandardResponse({
-    status: 200,
-    description: 'Password Changed Successfully',
-    model: ResponseUserDto,
-  })
-  async changePassword(
-    @GetUser() user: AuthJwtDto,
-    @Body() updatePassword: ChangeUserPasswordDto,
-  ): Promise<ResponseUserDto> {
-    const userId = parseInt(user.id);
-    return await this.userService.changeUserPassword(userId, updatePassword);
   }
 
   @ApiAuth(Role.Admin)

@@ -78,7 +78,7 @@ export class PaymentDto {
   })
   @IsOptional()
   @IsString()
-  paymentGatewayId?: string;
+  paymentGatewayId: string;
 
   @Expose()
   @ApiProperty({

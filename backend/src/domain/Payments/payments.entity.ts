@@ -21,7 +21,12 @@ export class Payment {
   @Column({ name: 'payable_id', nullable: false })
   payableId: number;
 
-  @Column({ type: 'enum', enum: PayableType, nullable: false })
+  @Column({
+    name: 'payable_type',
+    type: 'enum',
+    enum: PayableType,
+    nullable: false,
+  })
   payableType: PayableType;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })

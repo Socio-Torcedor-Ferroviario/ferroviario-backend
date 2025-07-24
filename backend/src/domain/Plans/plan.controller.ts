@@ -9,7 +9,12 @@ import {
 } from '@nestjs/common';
 import { PlanService } from './plan.service';
 import { ApiStandardResponse } from 'src/decorators/api-standard-response.decorator';
-import { CreatePlanDto, ResponsePlanDto } from './plan.schema';
+import {
+  CreatePlanDto,
+  ResponsePlanDto,
+  ResponsePlanDtoWithoutBenefits,
+  UpdatePlanDto,
+} from './plan.schema';
 import { Role } from '../User/role.enum';
 import { ApiAuth } from 'src/decorators/api-auth.decorator';
 
@@ -22,9 +27,11 @@ export class PlanController {
   @ApiStandardResponse({
     status: 201,
     description: 'Plan Created Successfully',
-    model: ResponsePlanDto,
+    model: ResponsePlanDtoWithoutBenefits,
   })
-  async create(@Body() plan: CreatePlanDto): Promise<ResponsePlanDto> {
+  async create(
+    @Body() plan: CreatePlanDto,
+  ): Promise<ResponsePlanDtoWithoutBenefits> {
     const newPlan = await this.planService.create(plan);
     return newPlan;
   }
@@ -59,7 +66,7 @@ export class PlanController {
   @Put(':id')
   async updatePlan(
     @Param('id') id: number,
-    @Body() plan: CreatePlanDto,
+    @Body() plan: UpdatePlanDto,
   ): Promise<ResponsePlanDto | null> {
     return await this.planService.update(id, plan);
   }

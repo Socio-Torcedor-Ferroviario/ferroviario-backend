@@ -4,11 +4,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { PaymentMethod } from './payment-methods.entity';
-import { CreatePaymentMethodDto } from './payment-methods.schema';
+import {
+  CreatePaymentMethodDto,
+  ResponsePaymentMethodDto,
+} from './payment-methods.schema';
 import { UpdatePaymentMethodDto } from './payment-methods.schema';
 import { Users } from '../User/user.entity';
+import { plainToInstance } from 'class-transformer';
 @Injectable()
 export class PaymentMethodsService {
   constructor(
@@ -16,6 +20,7 @@ export class PaymentMethodsService {
     private paymentMethodRepository: Repository<PaymentMethod>,
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async findAllMethodsForUser(userId: number): Promise<PaymentMethod[]> {
@@ -28,37 +33,51 @@ export class PaymentMethodsService {
   async createPaymentMethod(
     createPaymentMethodDto: CreatePaymentMethodDto,
     userId: number,
-  ): Promise<PaymentMethod> {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
+  ): Promise<ResponsePaymentMethodDto> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found.`);
-    }
+    try {
+      const user = await this.usersRepository.findOne({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found.`);
+      }
 
-    const newPaymentMethod = this.paymentMethodRepository.create({
-      ...createPaymentMethodDto,
-      userId: user.id,
-      user: user,
-    });
+      let newPaymentMethod = this.paymentMethodRepository.create({
+        ...createPaymentMethodDto,
+        userId: user.id,
+      });
 
-    if (newPaymentMethod.isDefault) {
-      await this.paymentMethodRepository
-        .createQueryBuilder()
-        .update(PaymentMethod)
-        .set({ isDefault: false })
-        .where('userId = :userId', { userId: user.id })
-        .andWhere('id != :id', { id: newPaymentMethod.id || 0 })
-        .execute();
-    } else {
       const existingMethodsCount = await this.paymentMethodRepository.count({
         where: { userId: user.id },
       });
-      if (existingMethodsCount === 0) {
-        newPaymentMethod.isDefault = true;
-      }
-    }
 
-    return this.paymentMethodRepository.save(newPaymentMethod);
+      if (createPaymentMethodDto.isDefault || existingMethodsCount === 0) {
+        newPaymentMethod.isDefault = true;
+        await queryRunner.manager.update(
+          PaymentMethod,
+          { userId: user.id },
+          { isDefault: false },
+        );
+      }
+
+      newPaymentMethod = await queryRunner.manager.save(newPaymentMethod);
+
+      await queryRunner.commitTransaction();
+
+      return plainToInstance(ResponsePaymentMethodDto, newPaymentMethod, {
+        excludeExtraneousValues: true,
+      });
+    } catch (err) {
+      console.error(err);
+      await queryRunner.rollbackTransaction();
+      throw new Error(`Failed to create payment method`);
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async updatePaymentMethod(

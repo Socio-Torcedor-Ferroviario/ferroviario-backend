@@ -1,7 +1,7 @@
 // src/domain/Plans/dto/create-plan.dto.ts
 
-import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
-import { Exclude, Expose } from 'class-transformer';
+import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
+import { Exclude, Expose, Type } from 'class-transformer';
 import {
   IsString,
   IsNotEmpty,
@@ -10,6 +10,7 @@ import {
   IsOptional,
   IsArray,
 } from 'class-validator';
+import { BenefitsSummaryDto } from '../Benefits/benefits.schema';
 
 export class CreatePlanDto {
   @ApiProperty({
@@ -83,7 +84,19 @@ export class ResponsePlanDto {
     example: 'Mensal',
   })
   frequency: string;
+
+  @Expose()
+  @ApiProperty({
+    description: 'Beneficios do Plano',
+    type: () => [BenefitsSummaryDto],
+  })
+  @Type(() => BenefitsSummaryDto)
+  benefits: BenefitsSummaryDto[];
 }
+
+export class ResponsePlanDtoWithoutBenefits extends OmitType(ResponsePlanDto, [
+  'benefits',
+] as const) {}
 
 export class UpdatePlanDto extends PartialType(CreatePlanDto) {
   @ApiProperty({
@@ -101,4 +114,15 @@ export class PlanSummaryDto extends PickType(ResponsePlanDto, [
   'id',
   'name',
   'price',
-] as const) {}
+] as const) {
+  @ApiProperty({
+    description: 'Description of Benefits of the plan',
+  })
+  @Expose()
+  @ApiProperty({
+    description: 'The benefits associated with the plan',
+    type: () => [BenefitsSummaryDto],
+  })
+  @Type(() => BenefitsSummaryDto)
+  benefits: BenefitsSummaryDto[];
+}

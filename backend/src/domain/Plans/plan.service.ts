@@ -2,10 +2,16 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Plans } from './plans.entity';
 import { DataSource, Repository } from 'typeorm';
-import { CreatePlanDto, ResponsePlanDto, UpdatePlanDto } from './plan.schema';
+import {
+  CreatePlanDto,
+  ResponsePlanDto,
+  ResponsePlanDtoWithoutBenefits,
+  UpdatePlanDto,
+} from './plan.schema';
 import { plainToInstance } from 'class-transformer';
 import { PlanBenefit } from './plan-benefits.entity';
-
+import { Benefit } from '../Benefits/benefits.entity';
+type FormattedPlan = Plans & { benefits: Benefit[] };
 @Injectable()
 export class PlanService {
   constructor(
@@ -13,23 +19,49 @@ export class PlanService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async create(plan: CreatePlanDto): Promise<ResponsePlanDto> {
+  private formatPlanResponse = (plan: Plans): FormattedPlan | null => {
+    if (!plan) return null;
+
+    const benefits = plan.planBenefits
+      ? plan.planBenefits.map((pb) => pb.benefit)
+      : [];
+
+    return {
+      ...plan,
+      benefits: benefits,
+    };
+  };
+
+  async create(plan: CreatePlanDto): Promise<ResponsePlanDtoWithoutBenefits> {
     const newPlanEntity = this.planRepository.create(plan);
     const savedPlan = await this.planRepository.save(newPlanEntity);
-    return plainToInstance(ResponsePlanDto, savedPlan);
+    return plainToInstance(ResponsePlanDtoWithoutBenefits, savedPlan, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async findAll(): Promise<ResponsePlanDto[]> {
-    const plans = await this.planRepository.find();
-    return plans.map((plan) => plainToInstance(ResponsePlanDto, plan));
+    const plans = await this.planRepository.find({
+      relations: ['planBenefits', 'planBenefits.benefit'],
+    });
+    const formattedPlans = plans.map(this.formatPlanResponse);
+    return plainToInstance(ResponsePlanDto, formattedPlans, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async findOne(id: number): Promise<ResponsePlanDto> {
-    const plan = await this.planRepository.findOne({ where: { id } });
+    const plan = await this.planRepository.findOne({
+      where: { id },
+      relations: ['planBenefits', 'planBenefits.benefit'],
+    });
     if (!plan) {
       throw new NotFoundException(`Plan with ID ${id} not found`);
     }
-    return plainToInstance(ResponsePlanDto, plan);
+    const formattedPlan = this.formatPlanResponse(plan);
+    return plainToInstance(ResponsePlanDto, formattedPlan, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async remove(id: number): Promise<void> {
@@ -74,7 +106,10 @@ export class PlanService {
         relations: ['planBenefits', 'planBenefits.benefit'],
       });
 
-      return plainToInstance(ResponsePlanDto, updatedPlan, {
+      const formattedPlan = updatedPlan
+        ? this.formatPlanResponse(updatedPlan)
+        : null;
+      return plainToInstance(ResponsePlanDto, formattedPlan, {
         excludeExtraneousValues: true,
       });
     } catch (err) {

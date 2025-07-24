@@ -10,7 +10,6 @@ import {
 } from 'class-validator';
 import { UserSummaryDto } from '../User/user.schema';
 import { PlanSummaryDto } from '../Plans/plan.schema';
-import { BenefitsSummaryDto } from '../Benefits/benefits.schema';
 
 @Exclude()
 export class SubscriptionDto {
@@ -114,13 +113,6 @@ export class ResponseSubscriptionDto extends OmitType(SubscriptionDto, [
   })
   @Type(() => PlanSummaryDto)
   plan: PlanSummaryDto;
-
-  @Expose()
-  @ApiProperty({
-    description: 'The benefits associated with the subscription',
-    type: () => [BenefitsSummaryDto],
-  })
-  benefits: BenefitsSummaryDto[];
 }
 
 export class ChangePlanDto extends PickType(SubscriptionDto, [

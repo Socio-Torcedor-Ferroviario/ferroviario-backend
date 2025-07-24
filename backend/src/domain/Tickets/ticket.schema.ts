@@ -76,15 +76,6 @@ export class TicketDto {
 
   @Expose()
   @ApiProperty({
-    description: 'The current status of the ticket',
-    example: 'VALIDO',
-  })
-  @IsString()
-  @IsNotEmpty()
-  status: string;
-
-  @Expose()
-  @ApiProperty({
     description: 'ID of the ticket order this ticket belongs to',
     example: 1,
   })

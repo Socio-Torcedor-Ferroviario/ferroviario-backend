@@ -36,7 +36,7 @@ export class SubscriptionService {
         'user',
         'plan',
         'plan.planBenefits',
-        'plan.planBenefits.benefit', // Carrega a relação aninhada
+        'plan.planBenefits.benefit',
       ],
     });
 
@@ -53,7 +53,6 @@ export class SubscriptionService {
         benefits: benefits,
       },
     };
-
     return plainToInstance(ResponseSubscriptionDto, formattedSubscription, {
       excludeExtraneousValues: true,
     });
@@ -82,6 +81,7 @@ export class SubscriptionService {
         },
       };
     });
+    console.log(subscriptionsWithBenefits);
 
     return plainToInstance(ResponseSubscriptionDto, subscriptionsWithBenefits, {
       excludeExtraneousValues: true,
@@ -137,6 +137,7 @@ export class SubscriptionService {
           status: 'PAID',
           paymentDate: new Date(),
           paymentMethodId: subscriptionDto.paymentMethodId,
+          paymentGatewayId: '123456789',
         },
         queryRunner.manager,
       );

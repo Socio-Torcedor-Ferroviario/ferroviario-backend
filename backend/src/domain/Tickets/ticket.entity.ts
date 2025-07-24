@@ -46,9 +46,6 @@ export class Ticket {
   })
   pricePaid: number;
 
-  @Column({ type: 'varchar', default: 'VALIDO', nullable: false })
-  status: string;
-
   @CreateDateColumn()
   created_at: Date;
 

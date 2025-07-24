@@ -4,7 +4,6 @@ import { PartialType } from '@nestjs/mapped-types';
 import {
   IsString,
   IsNotEmpty,
-  IsNumber,
   IsBoolean,
   IsOptional,
   Length,
@@ -13,19 +12,10 @@ import {
 
 export enum PaymentMethodType {
   CREDIT_CARD = 'CREDIT_CARD',
-  PIX = 'PIX',
-  BANK_TRANSFER = 'BANK_TRANSFER',
+  DEBIT_CARD = 'DEBIT_CARD',
 }
 
 export class CreatePaymentMethodDto {
-  @ApiProperty({
-    description: 'ID do usuário ao qual este método de pagamento pertence',
-    example: 1,
-  })
-  @IsNumber({}, { message: 'O user ID deve ser um número.' })
-  @IsNotEmpty({ message: 'O user ID não pode ser vazio.' })
-  userId: number;
-
   @ApiProperty({
     description: 'Tipo do método de pagamento',
     enum: PaymentMethodType,

@@ -7,38 +7,45 @@ import {
   Delete,
   Param,
   Body,
-  UseGuards,
-  HttpCode,
-  HttpStatus,
   ParseIntPipe,
 } from '@nestjs/common';
 import { PaymentMethodsService } from './payment-methods.service';
-import { CreatePaymentMethodDto } from './payment-methods.schema';
+import {
+  CreatePaymentMethodDto,
+  ResponsePaymentMethodDto,
+} from './payment-methods.schema';
 import { UpdatePaymentMethodDto } from './payment-methods.schema';
-import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../Auth/guards/roles.guard';
-import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/domain/User/role.enum';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { AuthJwtDto } from 'src/domain/Auth/auth.schema';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiAuth } from 'src/decorators/api-auth.decorator';
+import { ApiStandardResponse } from 'src/decorators/api-standard-response.decorator';
 
 @ApiBearerAuth()
 @ApiTags('PaymentMethods')
 @Controller('payments/me/methods')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles(Role.Socio)
+@ApiAuth(Role.Socio)
 export class PaymentMethodsController {
   constructor(private readonly paymentMethodsService: PaymentMethodsService) {}
 
   @Get()
-  @HttpCode(HttpStatus.OK)
+  @ApiStandardResponse({
+    status: 200,
+    description: 'Payment Methods Retrieved Successfully',
+    isArray: true,
+    model: ResponsePaymentMethodDto,
+  })
   async listPaymentMethods(@GetUser() user: AuthJwtDto) {
     return this.paymentMethodsService.findAllMethodsForUser(parseInt(user.id));
   }
 
   @Post()
-  @HttpCode(HttpStatus.CREATED)
+  @ApiStandardResponse({
+    status: 201,
+    description: 'Payment Method Created Successfully',
+    model: ResponsePaymentMethodDto,
+  })
   async addPaymentMethod(
     @Body() createPaymentMethodDto: CreatePaymentMethodDto,
     @GetUser() user: AuthJwtDto,
@@ -50,7 +57,11 @@ export class PaymentMethodsController {
   }
 
   @Patch(':id')
-  @HttpCode(HttpStatus.OK)
+  @ApiStandardResponse({
+    status: 200,
+    description: 'Payment Method Updated Successfully',
+    model: ResponsePaymentMethodDto,
+  })
   async updatePaymentMethod(
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePaymentMethodDto: UpdatePaymentMethodDto,
@@ -64,7 +75,11 @@ export class PaymentMethodsController {
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiStandardResponse({
+    status: 204,
+    description: 'Payment Method Deleted Successfully',
+    model: ResponsePaymentMethodDto,
+  })
   async removePaymentMethod(
     @Param('id', ParseIntPipe) id: number,
     @GetUser() user: AuthJwtDto,

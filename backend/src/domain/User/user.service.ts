@@ -8,7 +8,6 @@ import {
   CreateUserDto,
   UpdateUserDto,
   UserFilterDto,
-  ChangeUserPasswordDto,
 } from './user.schema';
 import { plainToInstance } from 'class-transformer';
 import { PageDto } from 'src/common/dto/page.dto';
@@ -130,21 +129,4 @@ export class UserService {
     });
   }
 
-  async changeUserPassword(
-    id: number,
-    updatePassword: ChangeUserPasswordDto,
-  ): Promise<ResponseUserDto> {
-    const userToUpdate = await this.userRepository.findOne({ where: { id } });
-    if (!userToUpdate) {
-      throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
-    }
-    if (updatePassword.cpf !== userToUpdate.cpf) {
-      throw new NotFoundException('CPF não corresponde ao usuário');
-    }
-    userToUpdate.password = updatePassword.password;
-    const updatedUser = await this.userRepository.save(userToUpdate);
-    return plainToInstance(ResponseUserDto, updatedUser, {
-      excludeExtraneousValues: true,
-    });
-  }
 }

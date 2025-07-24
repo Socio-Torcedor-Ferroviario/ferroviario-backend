@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager, Repository } from 'typeorm';
 import { Ticket } from './ticket.entity';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateTicketsForOrderDto } from './ticket.schema';
+import { CreateTicketsForOrderDto, ResponseTicketDto } from './ticket.schema';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class TicketsService {
@@ -32,5 +33,17 @@ export class TicketsService {
 
     const tickets = manager.create(Ticket, ticketsToCreate);
     return manager.save(tickets);
+  }
+
+  async findAllByUserId(userId: number): Promise<ResponseTicketDto[]> {
+    const tickets = await this.ticketRepository.find({
+      where: { userId },
+      relations: ['game'],
+      order: { purchaseDate: 'DESC' },
+    });
+
+    return plainToInstance(ResponseTicketDto, tickets, {
+      excludeExtraneousValues: true,
+    });
   }
 }

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { IsDecimal, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { PaymentRequestDto } from '../Payments/payments.schema';
 
 @Exclude()
 export class TicketOrderDto {
@@ -48,16 +49,6 @@ export class TicketOrderDto {
   status: string;
 }
 
-class PaymentRequestDto {
-  @ApiProperty({
-    description: 'ID of the saved credit card',
-    example: 'card_03',
-  })
-  @IsString()
-  @IsNotEmpty()
-  card_id: string;
-}
-
 export class CreateTicketOrderDto {
   @ApiProperty({
     description: 'ID of the game',
@@ -65,7 +56,7 @@ export class CreateTicketOrderDto {
   })
   @IsNumber()
   @IsNotEmpty()
-  game_id: number;
+  gameId: number;
 
   @ApiProperty({
     description: 'Number of tickets to purchase',

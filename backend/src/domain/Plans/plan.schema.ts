@@ -1,6 +1,6 @@
 // src/domain/Plans/dto/create-plan.dto.ts
 
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import {
   IsString,
@@ -8,6 +8,7 @@ import {
   IsNumber,
   IsPositive,
   IsOptional,
+  IsArray,
 } from 'class-validator';
 
 export class CreatePlanDto {
@@ -82,6 +83,18 @@ export class ResponsePlanDto {
     example: 'Mensal',
   })
   frequency: string;
+}
+
+export class UpdatePlanDto extends PartialType(CreatePlanDto) {
+  @ApiProperty({
+    description: 'A list of benefit IDs to associate with this plan.',
+    example: [1, 2, 5],
+    required: false,
+  })
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  benefit_ids?: number[];
 }
 
 export class PlanSummaryDto extends PickType(ResponsePlanDto, [

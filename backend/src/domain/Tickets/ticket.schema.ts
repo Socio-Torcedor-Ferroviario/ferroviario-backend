@@ -1,5 +1,5 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import {
   IsDate,
   IsNotEmpty,
@@ -7,9 +7,11 @@ import {
   IsString,
   IsDecimal,
   IsObject,
+  ValidateNested,
 } from 'class-validator';
 import { Game } from '../Games/game.entity';
 import { Users } from '../User/user.entity';
+import { PaymentRequestDto } from '../Payments/payments.schema';
 
 @Exclude()
 export class TicketDto {
@@ -92,6 +94,32 @@ export class TicketDto {
 }
 
 export class CreateTicketDto extends OmitType(TicketDto, ['id']) {}
+
+export class PurchaseTicketDto {
+  @ApiProperty({
+    description: 'ID of the game to purchase tickets for',
+    example: 1,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  gameId: number;
+
+  @ApiProperty({
+    description: 'Number of tickets to purchase',
+    example: 2,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  quantity: number;
+
+  @ApiProperty({
+    description: 'Payment details',
+    type: PaymentRequestDto,
+  })
+  @ValidateNested()
+  @Type(() => PaymentRequestDto)
+  payment: PaymentRequestDto;
+}
 
 export class CreateTicketsForOrderDto {
   @IsNumber()

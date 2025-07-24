@@ -1,4 +1,4 @@
-import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
+import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import {
   IsBoolean,
@@ -66,6 +66,8 @@ export class CreateBenefitDto extends OmitType(BenefitDto, [
 ]) {}
 
 export class ResponseBenefitDto extends BenefitDto {}
+
+export class UpdateBenefitDto extends PartialType(CreateBenefitDto) {}
 
 export class BenefitsSummaryDto extends PickType(ResponseBenefitDto, [
   'id',

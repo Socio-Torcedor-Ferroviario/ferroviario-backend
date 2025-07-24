@@ -82,6 +82,14 @@ export class PaymentDto {
 
   @Expose()
   @ApiProperty({
+    description: 'Payment Method Id',
+    example: '987654321',
+  })
+  @IsNumber()
+  paymentMethodId: number;
+
+  @Expose()
+  @ApiProperty({
     description: 'User ID',
     example: '1',
   })
@@ -102,3 +110,13 @@ export class PaymentsHistoryDto extends PickType(PaymentDto, [
   'status',
   'paymentMethodDescription',
 ]) {}
+
+export class PaymentRequestDto {
+  @ApiProperty({
+    description: 'ID of the Method ID',
+    example: '123',
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  paymentMethodId: number;
+}

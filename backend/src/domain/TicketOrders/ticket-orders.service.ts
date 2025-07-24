@@ -40,12 +40,12 @@ export class TicketOrdersService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    const { quantity, game_id, payment } = orderDto;
+    const { quantity, gameId, payment } = orderDto;
 
     try {
-      const game = await this.gameRepository.findOneBy({ id: game_id });
+      const game = await this.gameRepository.findOneBy({ id: gameId });
       if (!game) {
-        throw new NotFoundException(`Game with ID ${game_id} not found.`);
+        throw new NotFoundException(`Game with ID ${gameId} not found.`);
       }
       if (game.status !== 'SALE_OPEN') {
         throw new BadRequestException(
@@ -63,7 +63,7 @@ export class TicketOrdersService {
 
       let order = queryRunner.manager.create(TicketOrder, {
         user_id: userId,
-        game_id: game_id,
+        game_id: gameId,
         total_amount: totalAmount,
         status: 'PENDING',
       });
@@ -75,10 +75,11 @@ export class TicketOrdersService {
           amount: totalAmount,
           payableId: order.id,
           payableType: PayableType.TICKET_ORDER,
-          paymentMethodDescription: `Credit Card ending in ${payment.card_id.slice(-4)}`,
+          paymentMethodDescription: `Credit Card ending in ${payment.paymentMethodId}`,
           paymentGatewayId: 'tok_simulated_1234',
           status: 'PAID',
           paymentDate: new Date(),
+          paymentMethodId: payment.paymentMethodId,
         },
         queryRunner.manager,
       );
@@ -101,7 +102,7 @@ export class TicketOrdersService {
       await queryRunner.commitTransaction();
 
       return {
-        order_id: `order_${order.id}`,
+        order_id: `${order.id}`,
         status: order.status,
         qr_code_url: `url/to/qrcode_${tickets[0].qrCode}.png`,
       };

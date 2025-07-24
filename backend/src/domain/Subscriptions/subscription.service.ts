@@ -133,9 +133,10 @@ export class SubscriptionService {
           amount: plan.price,
           payableId: newSubscription.id,
           payableType: PayableType.SUBSCRIPTION,
-          paymentMethodDescription: `Payment Method ID: ${subscriptionDto.paymentMethodId}`,
+          paymentMethodDescription: `Payment Method via ${subscriptionDto.paymentMethodId}`,
           status: 'PAID',
           paymentDate: new Date(),
+          paymentMethodId: subscriptionDto.paymentMethodId,
         },
         queryRunner.manager,
       );

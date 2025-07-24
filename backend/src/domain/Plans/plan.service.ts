@@ -1,14 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Plans } from './plans.entity';
-import { Repository } from 'typeorm';
-import { CreatePlanDto, ResponsePlanDto } from './plan.schema';
+import { DataSource, Repository } from 'typeorm';
+import { CreatePlanDto, ResponsePlanDto, UpdatePlanDto } from './plan.schema';
 import { plainToInstance } from 'class-transformer';
+import { PlanBenefit } from './plan-benefits.entity';
 
 @Injectable()
 export class PlanService {
   constructor(
     @InjectRepository(Plans) private readonly planRepository: Repository<Plans>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(plan: CreatePlanDto): Promise<ResponsePlanDto> {
@@ -36,14 +38,50 @@ export class PlanService {
 
   async update(
     id: number,
-    plan: CreatePlanDto,
-  ): Promise<ResponsePlanDto | null> {
-    const existingPlan = await this.planRepository.findOne({ where: { id } });
-    if (!existingPlan) {
-      throw new NotFoundException(`Plan with ID ${id} not found`);
+    updatePlanDto: UpdatePlanDto,
+  ): Promise<ResponsePlanDto> {
+    const { benefit_ids, ...planData } = updatePlanDto;
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const plan = await queryRunner.manager.findOneBy(Plans, { id });
+      if (!plan) {
+        throw new NotFoundException(`Plan with ID ${id} not found.`);
+      }
+
+      queryRunner.manager.merge(Plans, plan, planData);
+      await queryRunner.manager.save(plan);
+
+      if (benefit_ids !== undefined) {
+        await queryRunner.manager.delete(PlanBenefit, { plan_id: id });
+
+        const newPlanBenefits = benefit_ids.map((benefitId) => {
+          return queryRunner.manager.create(PlanBenefit, {
+            plan_id: id,
+            benefit_id: benefitId,
+          });
+        });
+        await queryRunner.manager.save(newPlanBenefits);
+      }
+
+      await queryRunner.commitTransaction();
+
+      const updatedPlan = await this.planRepository.findOne({
+        where: { id },
+        relations: ['planBenefits', 'planBenefits.benefit'],
+      });
+
+      return plainToInstance(ResponsePlanDto, updatedPlan, {
+        excludeExtraneousValues: true,
+      });
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
-    await this.planRepository.update(id, plan);
-    const updatedPlan = await this.planRepository.findOne({ where: { id } });
-    return plainToInstance(ResponsePlanDto, updatedPlan);
   }
 }

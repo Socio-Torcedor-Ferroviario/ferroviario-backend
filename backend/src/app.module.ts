@@ -12,6 +12,8 @@ import { PartnerModule } from './domain/Partners/partner.module';
 import { ContentModule } from './domain/Content/content.module';
 import { GamesModule } from './domain/Games/game.module';
 import { TicketModule } from './domain/Tickets/ticket.module';
+import { TicketOrdersModule } from './domain/TicketOrders/ticket-orders.module';
+import { BenefitsModule } from './domain/Benefits/benefits.module';
 
 @Module({
   imports: [
@@ -42,6 +44,8 @@ import { TicketModule } from './domain/Tickets/ticket.module';
     ContentModule,
     GamesModule,
     TicketModule,
+    TicketOrdersModule,
+    BenefitsModule,
   ],
   controllers: [],
   providers: [],

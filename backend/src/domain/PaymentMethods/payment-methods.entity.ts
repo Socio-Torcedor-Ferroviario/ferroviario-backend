@@ -1,4 +1,3 @@
-// src/domain/PaymentMethods/payment-methods.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -6,8 +5,10 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Users } from '../User/user.entity';
+import { Payment } from '../Payments/payments.entity';
 
 @Entity('payment_methods')
 export class PaymentMethod {
@@ -42,6 +43,9 @@ export class PaymentMethod {
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
+
+  @OneToMany(() => Payment, (payment) => payment.paymentMethod)
+  payments: Payment[];
 
   @ManyToOne(() => Users, (users) => users.paymentMethod, {
     onDelete: 'CASCADE',

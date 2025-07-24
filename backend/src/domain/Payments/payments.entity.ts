@@ -1,4 +1,3 @@
-// src/domain/Payments/payments.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -7,6 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Users } from '../User/user.entity';
+import { PaymentMethod } from '../PaymentMethods/payment-methods.entity';
 
 export enum PayableType {
   SUBSCRIPTION = 'SUBSCRIPTION',
@@ -41,6 +41,16 @@ export class Payment {
 
   @Column({ name: 'user_id', nullable: false })
   userId: number;
+
+  @Column({ name: 'payment_method_id', nullable: true })
+  paymentMethodId: number;
+
+  @ManyToOne(() => PaymentMethod, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'payment_method_id' })
+  paymentMethod: PaymentMethod;
 
   @ManyToOne(() => Users)
   @JoinColumn({ name: 'user_id' })

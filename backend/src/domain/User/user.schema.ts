@@ -152,6 +152,11 @@ export class DtoWithoutCPF extends OmitType(CreateUserDto, ['cpf'] as const) {}
 
 export class UpdateUserDto extends PartialType(DtoWithoutCPF) {}
 
+export class ChangeUserPasswordDto extends PickType(UserDto, [
+  'password',
+  'cpf',
+]) {}
+
 export class ResponseUserDto extends OmitType(UserDto, ['password'] as const) {}
 
 export class LoginUserDto extends PickType(UserDto, ['email', 'password']) {}
@@ -162,6 +167,11 @@ export class UserTokenDto {
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
   })
   access_token: string;
+  @ApiProperty({
+    description: 'The role of the user',
+    example: 'PUBLIC',
+  })
+  role: Role;
 }
 
 export class UserFilterDto extends PageOptionsDto {

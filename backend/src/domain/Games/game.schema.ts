@@ -1,4 +1,4 @@
-import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import {
   IsBoolean,
@@ -44,7 +44,7 @@ export class GameDto {
   })
   @IsNotEmpty()
   @IsDate()
-  match_date: string;
+  match_date: Date;
 
   @Expose()
   @ApiProperty({
@@ -103,3 +103,4 @@ export class GameDto {
 
 export class CreateGameDto extends OmitType(GameDto, ['id']) {}
 export class ResponseGameDto extends GameDto {}
+export class UpdateGameDto extends PartialType(CreateGameDto) {}

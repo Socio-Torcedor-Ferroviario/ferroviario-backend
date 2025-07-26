@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Put } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SubscriptionService } from './subscription.service';
 import { Role } from '../User/role.enum';
 import { ApiStandardResponse } from 'src/decorators/api-standard-response.decorator';
@@ -24,6 +24,10 @@ export class SubscriptionController {
     description: 'Subscription Retrieved Successfully',
     model: ResponseSubscriptionDto,
   })
+  @ApiOperation({
+    summary: 'Retrieve My Subscription',
+    description: "Get the current user's subscription details.",
+  })
   async findMySubscription(
     @GetUser() user: AuthJwtDto,
   ): Promise<ResponseSubscriptionDto[]> {
@@ -36,6 +40,10 @@ export class SubscriptionController {
     status: 200,
     description: 'Plan Changed Successfully',
     model: ResponseSubscriptionDto,
+  })
+  @ApiOperation({
+    summary: 'Change Subscription Plan',
+    description: 'Change the current subscription plan for the user.',
   })
   async changePlan(
     @GetUser() user: AuthJwtDto,
@@ -51,6 +59,10 @@ export class SubscriptionController {
     status: 201,
     description: 'Subscription Created Successfully',
     model: ResponseSubscriptionDto,
+  })
+  @ApiOperation({
+    summary: 'Create Subscription',
+    description: 'Create a new subscription for the user.',
   })
   async createSubscription(
     @GetUser() user: AuthJwtDto,
@@ -69,6 +81,10 @@ export class SubscriptionController {
     status: 200,
     description: 'Subscription Canceled Successfully',
     model: ResponseSubscriptionDto,
+  })
+  @ApiOperation({
+    summary: 'Cancel Subscription',
+    description: 'Cancel the current subscription for the user.',
   })
   async cancelSubscription(
     @GetUser() user: AuthJwtDto,

@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './user.entity';
 import { Brackets, EntityManager, Repository } from 'typeorm';
@@ -22,6 +27,7 @@ export class UserService {
 
   async createUser(user: CreateUserDto): Promise<ResponseUserDto> {
     const newUser = this.userRepository.create(user);
+    newUser.role = Role.Public;
     const savedUser = await this.userRepository.save(newUser);
     return plainToInstance(ResponseUserDto, savedUser, {
       excludeExtraneousValues: true,
@@ -105,6 +111,44 @@ export class UserService {
     });
   }
 
+  async updateUserRole(
+    id: number,
+    role: Role,
+    manager: EntityManager = this.userRepository.manager,
+  ): Promise<ResponseUserDto> {
+    const userToUpdate = await this.userRepository.findOne({ where: { id } });
+
+    if (!userToUpdate) {
+      throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
+    }
+
+    if (userToUpdate.role === Role.Admin) {
+      throw new ForbiddenException(
+        'Administradores não podem alterar seu próprio papel por esta rota.',
+      );
+    }
+
+    if (role === Role.Admin) {
+      throw new ForbiddenException(
+        'Não é permitido escalar o papel para Administrador.',
+      );
+    }
+
+    const allowedTargetRoles = [Role.Public, Role.Socio];
+    if (!allowedTargetRoles.includes(role)) {
+      throw new BadRequestException(
+        `O papel de destino "${role}" não é válido.`,
+      );
+    }
+
+    userToUpdate.role = role;
+    const updatedUser = await manager.save(userToUpdate);
+
+    return plainToInstance(ResponseUserDto, updatedUser, {
+      excludeExtraneousValues: true,
+    });
+  }
+
   async updateUser(
     id: number,
     userData: UpdateUserDto,
@@ -116,17 +160,11 @@ export class UserService {
       throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
     }
 
-    if (userData.role && userToUpdate.role !== Role.Public) {
-      delete userData.role;
-    }
-
     const updatedUser = this.userRepository.merge(userToUpdate, userData);
-
     const savedUser = await manager.save(updatedUser);
 
     return plainToInstance(ResponseUserDto, savedUser, {
       excludeExtraneousValues: true,
     });
   }
-
 }

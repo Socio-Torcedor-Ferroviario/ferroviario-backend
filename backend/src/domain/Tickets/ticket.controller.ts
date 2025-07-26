@@ -1,7 +1,7 @@
 // src/domain/Tickets/ticket.controller.ts
 
 import { Body, Controller, Post, Get } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiAuth } from 'src/decorators/api-auth.decorator';
 import { Role } from '../User/role.enum';
 import { TicketOrdersService } from '../TicketOrders/ticket-orders.service';
@@ -27,6 +27,10 @@ export class TicketsController {
     description: 'Ticket Order Created Successfully',
     model: TicketOrderResponseDto,
   })
+  @ApiOperation({
+    summary: 'Purchase Ticket',
+    description: 'Purchase a ticket for an event.',
+  })
   async purchase(
     @GetUser() user: AuthJwtDto,
     @Body() purchaseDto: PurchaseTicketDto,
@@ -41,6 +45,10 @@ export class TicketsController {
     description: 'Tickets Retrieved Successfully',
     isArray: true,
     model: ResponseTicketDto,
+  })
+  @ApiOperation({
+    summary: 'Retrieve My Tickets',
+    description: "Get the current user's tickets.",
   })
   async getMyTickets(
     @GetUser() user: AuthJwtDto,

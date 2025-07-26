@@ -6,7 +6,7 @@ import {
   Request,
   Put,
 } from '@nestjs/common';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBody, ApiOperation } from '@nestjs/swagger';
 import {
   ResponseUserDto,
   LoginUserDto,
@@ -33,6 +33,10 @@ export class AuthController {
     description: 'User Registered Successfully',
     model: ResponseUserDto,
   })
+  @ApiOperation({
+    summary: 'Register a new user',
+    description: 'Endpoint to register a new user in the system.',
+  })
   async registerUser(@Body() user: CreateUserDto): Promise<ResponseUserDto> {
     const newUser = await this.authService.register(user);
     return newUser;
@@ -46,6 +50,10 @@ export class AuthController {
     description: 'User Logged In Successfully',
     model: UserTokenDto,
   })
+  @ApiOperation({
+    summary: 'Login a user',
+    description: 'Endpoint to login a user and return a JWT token.',
+  })
   loginUser(@GetUser() user: ResponseUserDto): UserTokenDto {
     const token = this.authService.login(user);
     return token;
@@ -56,6 +64,10 @@ export class AuthController {
   @ApiStandardResponse({
     status: 204,
     description: 'Password Changed Successfully',
+  })
+  @ApiOperation({
+    summary: 'Change user password',
+    description: 'Endpoint to change the password of the authenticated user.',
   })
   async changePassword(
     @GetUser() user: AuthJwtDto,

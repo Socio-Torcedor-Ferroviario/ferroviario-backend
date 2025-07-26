@@ -18,6 +18,17 @@ export class GameService {
     });
   }
 
+  async findGames(): Promise<ResponseGameDto[]> {
+    const games = await this.gameRepository.find({
+      where: { visibility: true },
+      order: { match_date: 'ASC' },
+    });
+
+    return plainToInstance(ResponseGameDto, games, {
+      excludeExtraneousValues: true,
+    });
+  }
+
   async findOpenForSale(): Promise<ResponseGameDto[]> {
     const games = await this.gameRepository.find({
       where: {

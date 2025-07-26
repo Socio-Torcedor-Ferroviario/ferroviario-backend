@@ -18,7 +18,7 @@ import { UpdatePaymentMethodDto } from './payment-methods.schema';
 import { Role } from 'src/domain/User/role.enum';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { AuthJwtDto } from 'src/domain/Auth/auth.schema';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiAuth } from 'src/decorators/api-auth.decorator';
 import { ApiStandardResponse } from 'src/decorators/api-standard-response.decorator';
 
@@ -36,6 +36,10 @@ export class PaymentMethodsController {
     isArray: true,
     model: ResponsePaymentMethodDto,
   })
+  @ApiOperation({
+    summary: 'List all payment methods',
+    description: 'Retrieves all payment methods for the authenticated user.',
+  })
   async listPaymentMethods(@GetUser() user: AuthJwtDto) {
     return this.paymentMethodsService.findAllMethodsForUser(parseInt(user.id));
   }
@@ -45,6 +49,10 @@ export class PaymentMethodsController {
     status: 201,
     description: 'Payment Method Created Successfully',
     model: ResponsePaymentMethodDto,
+  })
+  @ApiOperation({
+    summary: 'Add a new payment method',
+    description: 'Creates a new payment method for the authenticated user.',
   })
   async addPaymentMethod(
     @Body() createPaymentMethodDto: CreatePaymentMethodDto,
@@ -61,6 +69,10 @@ export class PaymentMethodsController {
     status: 200,
     description: 'Payment Method Updated Successfully',
     model: ResponsePaymentMethodDto,
+  })
+  @ApiOperation({
+    summary: 'Update an existing payment method',
+    description: 'Updates the details of an existing payment method.',
   })
   async updatePaymentMethod(
     @Param('id', ParseIntPipe) id: number,
@@ -79,6 +91,10 @@ export class PaymentMethodsController {
     status: 204,
     description: 'Payment Method Deleted Successfully',
     model: ResponsePaymentMethodDto,
+  })
+  @ApiOperation({
+    summary: 'Remove a payment method',
+    description: 'Deletes a payment method for the authenticated user.',
   })
   async removePaymentMethod(
     @Param('id', ParseIntPipe) id: number,

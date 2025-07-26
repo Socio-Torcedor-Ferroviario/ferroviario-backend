@@ -145,9 +145,9 @@ export class SubscriptionService {
       newSubscription.status = SubscriptionStatus.ACTIVE;
       await queryRunner.manager.save(newSubscription);
 
-      await this.userService.updateUser(
+      await this.userService.updateUserRole(
         userId,
-        { role: Role.Socio },
+        Role.Socio,
         queryRunner.manager,
       );
 

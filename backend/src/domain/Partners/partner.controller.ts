@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PartnerService } from './partner.service';
 import {
   CreatePartnerDto,
@@ -22,6 +22,10 @@ export class PartnerController {
     status: 201,
     model: ResponsePartnerDto,
   })
+  @ApiOperation({
+    summary: 'Create a new partner',
+    description: 'Creates a new partner with the provided details.',
+  })
   async create(
     @Body() createPartnerDto: CreatePartnerDto,
   ): Promise<ResponsePartnerDto> {
@@ -37,6 +41,10 @@ export class PartnerController {
     isArray: true,
     model: ResponsePartnerDto,
   })
+  @ApiOperation({
+    summary: 'Get all partners',
+    description: 'Retrieves a list of all partners available in the system.',
+  })
   async findAll(): Promise<ResponsePartnerDto[]> {
     const partners = await this.partnerService.findAll();
     return partners;
@@ -48,6 +56,10 @@ export class PartnerController {
     description: 'Partner Updated Successfully',
     status: 200,
     model: ResponsePartnerDto,
+  })
+  @ApiOperation({
+    summary: 'Update a partner by ID',
+    description: 'Updates the details of a partner with the provided ID.',
   })
   async update(
     @Param('id') id: string,

@@ -146,7 +146,7 @@ export class UserDto {
   role: Role;
 }
 
-export class CreateUserDto extends OmitType(UserDto, ['id'] as const) {}
+export class CreateUserDto extends OmitType(UserDto, ['id', 'role'] as const) {}
 
 export class DtoWithoutCPF extends OmitType(CreateUserDto, ['cpf'] as const) {}
 

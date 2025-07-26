@@ -14,7 +14,7 @@ import {
   UpdateBenefitDto,
   ResponseBenefitDto,
 } from './benefits.schema';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiAuth } from 'src/decorators/api-auth.decorator';
 import { Role } from '../User/role.enum';
 import { plainToInstance } from 'class-transformer';
@@ -32,6 +32,10 @@ export class BenefitsController {
     description: 'Benefit created successfully.',
     model: ResponseBenefitDto,
   })
+  @ApiOperation({
+    summary: 'Create a new benefit',
+    description: 'Creates a new benefit with the provided details.',
+  })
   async create(
     @Body() createBenefitDto: CreateBenefitDto,
   ): Promise<ResponseBenefitDto> {
@@ -46,6 +50,10 @@ export class BenefitsController {
     isArray: true,
     model: ResponseBenefitDto,
   })
+  @ApiOperation({
+    summary: 'Get all benefits',
+    description: 'Retrieves a list of all benefits available in the system.',
+  })
   async findAll(): Promise<ResponseBenefitDto[]> {
     const benefits = await this.benefitsService.findAll();
     return plainToInstance(ResponseBenefitDto, benefits);
@@ -56,6 +64,10 @@ export class BenefitsController {
     status: 200,
     description: 'Benefit details by ID.',
     model: ResponseBenefitDto,
+  })
+  @ApiOperation({
+    summary: 'Get benefit by ID',
+    description: 'Retrieves the details of a specific benefit by its ID.',
   })
   async findOne(
     @Param('id', ParseIntPipe) id: number,
@@ -70,6 +82,10 @@ export class BenefitsController {
     description: 'Benefit updated successfully.',
     model: ResponseBenefitDto,
   })
+  @ApiOperation({
+    summary: 'Update a benefit',
+    description: 'Updates the details of an existing benefit by its ID.',
+  })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateBenefitDto: UpdateBenefitDto,
@@ -82,6 +98,10 @@ export class BenefitsController {
   @ApiStandardResponse({
     status: 200,
     description: 'Benefit deleted successfully.',
+  })
+  @ApiOperation({
+    summary: 'Delete a benefit',
+    description: 'Deletes a specific benefit by its ID.',
   })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.benefitsService.remove(id);

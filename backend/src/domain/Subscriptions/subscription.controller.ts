@@ -54,7 +54,7 @@ export class SubscriptionController {
   }
 
   @Post('create-subscription')
-  @ApiAuth(Role.Socio)
+  @ApiAuth(Role.Public)
   @ApiStandardResponse({
     status: 201,
     description: 'Subscription Created Successfully',

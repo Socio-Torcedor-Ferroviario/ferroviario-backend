@@ -25,7 +25,7 @@ import { ApiStandardResponse } from 'src/decorators/api-standard-response.decora
 @ApiBearerAuth()
 @ApiTags('PaymentMethods')
 @Controller('payments/me/methods')
-@ApiAuth(Role.Socio)
+@ApiAuth(Role.Public)
 export class PaymentMethodsController {
   constructor(private readonly paymentMethodsService: PaymentMethodsService) {}
 

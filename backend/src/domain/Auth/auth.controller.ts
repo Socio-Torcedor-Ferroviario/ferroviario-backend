@@ -59,7 +59,7 @@ export class AuthController {
     return token;
   }
 
-  @ApiAuth(Role.Socio)
+  @ApiAuth(Role.Public)
   @Put('change-password')
   @ApiStandardResponse({
     status: 204,

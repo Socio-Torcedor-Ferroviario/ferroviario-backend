@@ -100,11 +100,11 @@ export class TicketOrdersService {
       );
 
       await queryRunner.commitTransaction();
-
+      const qrData = tickets[0].qrCode;
       return {
         order_id: `${order.id}`,
         status: order.status,
-        qr_code_url: `url/to/qrcode_${tickets[0].qrCode}.png`,
+        qr_code_url: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`,
       };
     } catch (err) {
       await queryRunner.rollbackTransaction();

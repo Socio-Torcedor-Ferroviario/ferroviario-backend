@@ -15,7 +15,7 @@ import { ApiAuth } from 'src/decorators/api-auth.decorator';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiAuth(Role.Socio)
+  @ApiAuth(Role.Public)
   @Get('me')
   @ApiStandardResponse({
     status: 200,
@@ -30,7 +30,7 @@ export class UserController {
     return await this.userService.findById(parseInt(user.id));
   }
 
-  @ApiAuth(Role.Socio)
+  @ApiAuth(Role.Public)
   @Put('me')
   @ApiStandardResponse({
     status: 200,

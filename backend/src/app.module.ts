@@ -14,6 +14,7 @@ import { GamesModule } from './domain/Games/game.module';
 import { TicketModule } from './domain/Tickets/ticket.module';
 import { TicketOrdersModule } from './domain/TicketOrders/ticket-orders.module';
 import { BenefitsModule } from './domain/Benefits/benefits.module';
+import { DashboardModule } from './domain/Dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { BenefitsModule } from './domain/Benefits/benefits.module';
     TicketModule,
     TicketOrdersModule,
     BenefitsModule,
+    DashboardModule,
   ],
   controllers: [],
   providers: [],

@@ -46,23 +46,18 @@ export class DashboardService {
    */
   async getDashboardData(): Promise<DashboardResponseDto> {
     try {
-      // --- 1. Buscar e processar usuários ---
-      // Carrega usuários com suas assinaturas e planos para determinar status e plano
       const allUsers = await this.usersRepository.find({
         relations: ['subscriptions', 'subscriptions.plan'],
       });
 
-      // Filtra usuários que não são ADMIN
       const nonAdminUsers = allUsers.filter((user) => user.role !== Role.Admin);
 
-      // Mapeia usuários para o DTO, determinando o plano e status com base nas assinaturas
       const users: UserDto[] = nonAdminUsers.map((user) => {
         const activeSubscription = user.subscriptions?.find(
           (sub) => sub.status === SubscriptionStatus.ACTIVE,
         );
         const planName = activeSubscription?.plan?.name || 'N/A';
-        const status = activeSubscription ? 'Active' : 'Inactive'; // Simplificado: se tem assinatura ativa, é 'Active'
-
+        const status = activeSubscription ? 'Active' : 'Inactive';
         return {
           id: user.id,
           name: user.fullName,
@@ -76,26 +71,22 @@ export class DashboardService {
         };
       });
 
-      // --- 2. Buscar e processar jogos ---
-      // Assumindo que a entidade Ticket existe e está relacionada a Game para contar ticketsSold
       const gamesEntities = await this.gameRepository.find({
         relations: ['tickets'],
       });
 
       const games: GameDto[] = gamesEntities.map((game) => ({
         id: game.id,
-        title: `${game.opponent_team} vs Ferroviário`, // Exemplo de título
+        title: `${game.opponent_team} vs Ferroviário`,
         date: game.match_date
           ? game.match_date.toISOString().split('T')[0]
           : '',
         location: game.location,
-        ticketsSold: game.tickets ? game.tickets.length : 0, // Conta o número de tickets associados
+        ticketsSold: game.tickets ? game.tickets.length : 0,
         capacity: game.capacity || 0,
         status: game.status || 'Unknown',
       }));
 
-      // --- 3. Buscar e processar planos com benefícios ---
-      // Carrega planos com seus benefícios e a entidade Benefit para obter o nome do benefício
       const plansEntities = await this.plansRepository.find({
         relations: ['planBenefits', 'planBenefits.benefit'],
       });
@@ -109,7 +100,6 @@ export class DashboardService {
           : [],
       }));
 
-      // --- 4. Buscar e processar conteúdos ---
       const contentsEntities = await this.contentRepository.find();
 
       const contents: ContentDto[] = contentsEntities.map((content) => ({
@@ -121,12 +111,8 @@ export class DashboardService {
           : '',
       }));
 
-      // --- 5. Calcular Indicadores ---
-
-      // Total de membros: Contagem de usuários não-ADMIN
       const totalMembers = nonAdminUsers.length;
 
-      // Receita Mensal: Soma dos pagamentos de SUBSCRIPTION 'completed' no mês atual
       const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -134,8 +120,8 @@ export class DashboardService {
       const monthlyPayments = await this.paymentRepository.find({
         where: {
           payableType: PayableType.SUBSCRIPTION,
-          status: 'completed', // Ou o status que indica pagamento bem-sucedido
-          paymentDate: Between(firstDayOfMonth, lastDayOfMonth), // Requer import { Between } from 'typeorm';
+          status: 'completed',
+          paymentDate: Between(firstDayOfMonth, lastDayOfMonth),
         },
       });
 
@@ -143,10 +129,8 @@ export class DashboardService {
         return sum + parseFloat(payment.amount.toString());
       }, 0);
 
-      // Jogos registrados: Contagem de jogos
       const registeredGames = gamesEntities.length;
 
-      // Total de conversão: Percentual de usuários não-ADMIN com assinatura ATIVA
       const activeNonAdminMembers = nonAdminUsers.filter((user) =>
         user.subscriptions?.some(
           (sub) => sub.status === SubscriptionStatus.ACTIVE,
@@ -165,7 +149,6 @@ export class DashboardService {
         totalConversion,
       };
 
-      // --- Montar a resposta final ---
       const dashboardData: DashboardDataDto = {
         indicators,
         user: users,

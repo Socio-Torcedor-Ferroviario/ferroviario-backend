@@ -40,7 +40,7 @@ export class UserDto {
     example: '2024-10-31',
     description: 'Data de adesão do usuário.',
   })
-  joinDate: string; // Ou Date, dependendo de como você prefere representar datas
+  joinDate: string; 
 
   @ApiProperty({ example: 'joao@email.com', description: 'Email do usuário.' })
   email: string;
@@ -57,8 +57,7 @@ export class GameDto {
   title: string;
 
   @ApiProperty({ example: '2024-02-09', description: 'Data do jogo.' })
-  date: string; // Ou Date
-
+  date: string; 
   @ApiProperty({ example: 'Presidente Vargas', description: 'Local do jogo.' })
   location: string;
 

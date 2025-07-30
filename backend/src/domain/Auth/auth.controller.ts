@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Post,
-  UseGuards,
-  Request,
-  Put,
-} from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Put } from '@nestjs/common';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
 import {
   ResponseUserDto,
@@ -18,9 +11,6 @@ import { ApiStandardResponse } from 'src/decorators/api-standard-response.decora
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/decorators/get-user.decorator';
-import { ApiAuth } from 'src/decorators/api-auth.decorator';
-import { Role } from '../User/role.enum';
-import { AuthJwtDto } from './auth.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -59,7 +49,6 @@ export class AuthController {
     return token;
   }
 
-  @ApiAuth(Role.Public)
   @Put('change-password')
   @ApiStandardResponse({
     status: 204,
@@ -69,11 +58,9 @@ export class AuthController {
     summary: 'Change user password',
     description: 'Endpoint to change the password of the authenticated user.',
   })
-  async changePassword(
-    @GetUser() user: AuthJwtDto,
+  async resetPassword(
     @Body() updatePassword: ChangeUserPasswordDto,
   ): Promise<void> {
-    const userId = parseInt(user.id);
-    await this.authService.changePassword(userId, updatePassword);
+    await this.authService.resetPassword(updatePassword);
   }
 }

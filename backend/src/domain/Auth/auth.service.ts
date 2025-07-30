@@ -56,13 +56,15 @@ export class AuthService {
 
     return newUser;
   }
-  async changePassword(id: number, updatePassword: ChangeUserPasswordDto) {
-    const userToUpdate = await this.userService.findById(id);
+  async resetPassword(updatePassword: ChangeUserPasswordDto) {
+    const userToUpdate = await this.userService.findByCpf(updatePassword.cpf);
     const user = plainToInstance(Users, userToUpdate, {
       excludeExtraneousValues: true,
     });
     if (!userToUpdate) {
-      throw new ConflictException(`Usuário com ID ${id} não encontrado`);
+      throw new ConflictException(
+        `Usuário com CPF ${updatePassword.cpf} não encontrado`,
+      );
     }
     if (updatePassword.cpf !== userToUpdate.cpf) {
       throw new Error('CPF não corresponde ao usuário');

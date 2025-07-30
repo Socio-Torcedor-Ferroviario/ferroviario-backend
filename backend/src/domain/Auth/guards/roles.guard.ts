@@ -38,6 +38,10 @@ export class RolesGuard implements CanActivate {
       );
     }
 
+    if (requiredRoles.includes(Role.Public)) {
+      return true;
+    }
+
     if (user.role === Role.Admin) {
       return true;
     }

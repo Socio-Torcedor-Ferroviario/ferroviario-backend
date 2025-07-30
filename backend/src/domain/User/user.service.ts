@@ -101,6 +101,16 @@ export class UserService {
     });
   }
 
+  async findByCpf(cpf: string): Promise<ResponseUserDto | null> {
+    const user = await this.userRepository.findOne({ where: { cpf } });
+    if (!user) {
+      return null;
+    }
+    return plainToInstance(ResponseUserDto, user, {
+      excludeExtraneousValues: true,
+    });
+  }
+
   async findById(id: number): Promise<ResponseUserDto> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {

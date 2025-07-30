@@ -11,6 +11,7 @@ import {
   IsArray,
 } from 'class-validator';
 import { BenefitsSummaryDto } from '../Benefits/benefits.schema';
+import { ContentDtoSummary } from '../Content/content.schema';
 
 export class CreatePlanDto {
   @ApiProperty({
@@ -92,6 +93,14 @@ export class ResponsePlanDto {
   })
   @Type(() => BenefitsSummaryDto)
   benefits: BenefitsSummaryDto[];
+
+  @Expose()
+  @ApiProperty({
+    description: 'Conteúdos associados ao plano',
+    type: () => [ContentDtoSummary],
+  })
+  @Type(() => ContentDtoSummary)
+  contents: ContentDtoSummary[];
 }
 
 export class ResponsePlanDtoWithoutBenefits extends OmitType(ResponsePlanDto, [
@@ -126,3 +135,9 @@ export class PlanSummaryDto extends PickType(ResponsePlanDto, [
   @Type(() => BenefitsSummaryDto)
   benefits: BenefitsSummaryDto[];
 }
+
+export class PlanSummaryOnlyPlanDto extends PickType(PlanSummaryDto, [
+  'id',
+  'name',
+  'price',
+] as const) {}

@@ -1,4 +1,4 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import {
   IsArray,
   IsInt,
@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { UserSummaryDto } from '../User/user.schema';
+import { PlanSummaryOnlyPlanDto } from '../Plans/plan.schema';
 
 @Exclude()
 export class ContentDto {
@@ -56,4 +57,15 @@ export class ResponseContentDto extends ContentDto {
   @Type(() => UserSummaryDto)
   @ApiProperty({ type: () => UserSummaryDto })
   author: UserSummaryDto;
+  @Expose()
+  @Type(() => PlanSummaryOnlyPlanDto)
+  @ApiProperty({ type: () => PlanSummaryOnlyPlanDto, isArray: true })
+  plans: PlanSummaryOnlyPlanDto[];
 }
+
+export class ContentDtoSummary extends PickType(ContentDto, [
+  'id',
+  'title',
+  'body',
+  'type',
+] as const) {}

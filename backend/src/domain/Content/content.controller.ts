@@ -56,6 +56,22 @@ export class ContentController {
     return contents;
   }
 
+  @Get(':id')
+  @ApiAuth(Role.Socio, Role.Admin)
+  @ApiStandardResponse({
+    status: 200,
+    description: 'Content retrieved successfully.',
+    model: ResponseContentDto,
+  })
+  @ApiOperation({
+    summary: 'Get content by ID',
+    description: 'Retrieves content details by its ID.',
+  })
+  async findOne(@Param('id') id: string): Promise<ResponseContentDto> {
+    const content = await this.contentService.findById(+id);
+    return content;
+  }
+
   @Put(':id')
   @ApiAuth(Role.Admin)
   @ApiStandardResponse({

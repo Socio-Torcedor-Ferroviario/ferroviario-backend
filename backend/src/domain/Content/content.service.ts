@@ -39,9 +39,22 @@ export class ContentService {
     });
   }
 
+  async findById(id: number): Promise<ResponseContentDto> {
+    const content = await this.contentRepository.findOne({
+      where: { id },
+      relations: ['author', 'plans'],
+    });
+    if (!content) {
+      throw new NotFoundException(`Content with ID ${id} not found.`);
+    }
+    return plainToInstance(ResponseContentDto, content, {
+      excludeExtraneousValues: true,
+    });
+  }
+
   async findAll(): Promise<ResponseContentDto[]> {
     const contents = await this.contentRepository.find({
-      relations: ['author'],
+      relations: ['author', 'plans'],
       order: { created_at: 'DESC' },
     });
     return contents.map((content) =>

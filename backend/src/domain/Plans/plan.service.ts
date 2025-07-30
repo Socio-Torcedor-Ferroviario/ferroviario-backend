@@ -53,7 +53,7 @@ export class PlanService {
   async findOne(id: number): Promise<ResponsePlanDto> {
     const plan = await this.planRepository.findOne({
       where: { id },
-      relations: ['planBenefits', 'planBenefits.benefit'],
+      relations: ['planBenefits', 'planBenefits.benefit', 'contents'],
     });
     if (!plan) {
       throw new NotFoundException(`Plan with ID ${id} not found`);

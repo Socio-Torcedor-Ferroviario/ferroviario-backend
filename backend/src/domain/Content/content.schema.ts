@@ -3,7 +3,6 @@ import {
   IsArray,
   IsInt,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -13,11 +12,6 @@ import { PlanSummaryOnlyPlanDto } from '../Plans/plan.schema';
 
 @Exclude()
 export class ContentDto {
-  @Expose()
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  id: number;
-
   @Expose()
   @ApiProperty({ example: 'Breaking News' })
   @IsString()

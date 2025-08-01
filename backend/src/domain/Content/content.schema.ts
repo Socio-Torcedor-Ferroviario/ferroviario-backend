@@ -1,8 +1,9 @@
-import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
+import { ApiProperty, PartialType, PickType, OmitType } from '@nestjs/swagger';
 import {
   IsArray,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -12,6 +13,11 @@ import { PlanSummaryOnlyPlanDto } from '../Plans/plan.schema';
 
 @Exclude()
 export class ContentDto {
+  @Expose()
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  id: number;
+
   @Expose()
   @ApiProperty({ example: 'Breaking News' })
   @IsString()
@@ -31,7 +37,7 @@ export class ContentDto {
   type: string;
 }
 
-export class CreateContentDto extends ContentDto {
+export class CreateContentDto extends OmitType(ContentDto, ['id']) {
   @ApiProperty({
     description: 'Array de IDs dos planos que podem acessar este conteúdo.',
     example: [1, 3],
